@@ -1,7 +1,12 @@
 import type { Session, User } from "better-auth/types";
 
 import { auth } from "@ocrbase/auth";
+import { db } from "@ocrbase/db";
+import { member, organization } from "@ocrbase/db/schema/auth";
+import { eq } from "drizzle-orm";
 import { Elysia } from "elysia";
+
+import type { WideEventContext } from "../lib/wide-event";
 
 type Organization = Awaited<ReturnType<typeof auth.api.getFullOrganization>>;
 
@@ -9,6 +14,10 @@ export const authPlugin = new Elysia({ name: "auth" }).derive(
   { as: "global" },
   async ({
     request,
+    wideEvent,
+  }: {
+    request: Request;
+    wideEvent?: WideEventContext;
   }): Promise<{
     user: User | null;
     session: Session | null;
@@ -26,10 +35,14 @@ export const authPlugin = new Elysia({ name: "auth" }).derive(
       };
     }
 
+    wideEvent?.setUser({ id: session.user.id });
+
+    // Try to get the active organization first
     let activeOrg = await auth.api.getFullOrganization({
       headers: request.headers,
     });
 
+    // If no active org, check header
     if (!activeOrg) {
       const orgId = request.headers.get("x-organization-id");
       if (orgId) {
@@ -38,6 +51,31 @@ export const authPlugin = new Elysia({ name: "auth" }).derive(
           query: { organizationId: orgId },
         });
       }
+    }
+
+    // If still no org, find the first organization the user is a member of
+    if (!activeOrg) {
+      const userMembership = await db
+        .select({
+          organization: organization,
+        })
+        .from(member)
+        .innerJoin(organization, eq(member.organizationId, organization.id))
+        .where(eq(member.userId, session.user.id))
+        .limit(1);
+
+      const [firstMembership] = userMembership;
+      if (firstMembership) {
+        // Get full organization details using the API
+        activeOrg = await auth.api.getFullOrganization({
+          headers: request.headers,
+          query: { organizationId: firstMembership.organization.id },
+        });
+      }
+    }
+
+    if (activeOrg) {
+      wideEvent?.setOrganization({ id: activeOrg.id, name: activeOrg.name });
     }
 
     return {
@@ -50,7 +88,7 @@ export const authPlugin = new Elysia({ name: "auth" }).derive(
 
 export const requireAuth = new Elysia({ name: "requireAuth" })
   .use(authPlugin)
-  .onBeforeHandle({ as: "scoped" }, ({ user, set }) => {
+  .onBeforeHandle({ as: "scoped" }, ({ set, user }) => {
     if (!user) {
       set.status = 401;
       return { message: "Unauthorized" };

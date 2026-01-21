@@ -1,5 +1,4 @@
 /* eslint-disable eslint-plugin-jest/require-hook */
-/* eslint-disable eslint/max-statements */
 import { type Job as BullJob, Worker } from "bullmq";
 
 import {
@@ -8,6 +7,7 @@ import {
   getJobById,
   updateJobStatus,
 } from "../lib/job-status";
+import { type WorkerJobContext, workerLogger } from "../lib/worker-logger";
 import { llmService } from "../services/llm";
 import { parseDocument } from "../services/ocr";
 import { type JobData, connection } from "../services/queue";
@@ -60,37 +60,73 @@ const processJob = async (bullJob: BullJob<JobData>): Promise<void> => {
   const { jobId } = bullJob.data;
   const startTime = Date.now();
 
-  const job = await getJobById(jobId);
+  const eventContext: WorkerJobContext = {
+    bullJobId: bullJob.id,
+    jobId,
+  };
 
-  if (!job) {
-    throw new Error(`Job not found: ${jobId}`);
-  }
+  try {
+    const job = await getJobById(jobId);
 
-  await updateJobStatus(jobId, "processing", { startedAt: new Date() });
+    if (!job) {
+      throw new Error(`Job not found: ${jobId}`);
+    }
 
-  const fileBuffer = await StorageService.getFile(job.fileKey);
-  const { markdown, pageCount } = await parseDocument(fileBuffer, job.mimeType);
+    eventContext.type = job.type;
+    eventContext.fileSize = job.fileSize;
+    eventContext.mimeType = job.mimeType;
+    eventContext.userId = job.userId;
+    eventContext.organizationId = job.organizationId;
 
-  await updateJobStatus(jobId, "processing", {
-    markdownResult: markdown,
-    pageCount,
-  });
+    await updateJobStatus(jobId, "processing", { startedAt: new Date() });
 
-  if (job.type === "extract") {
-    const schema = job.schema?.jsonSchema as
-      | Record<string, unknown>
-      | undefined;
-    await runExtraction(
-      jobId,
-      markdown,
-      schema,
-      job.llmModel,
-      job.llmProvider,
-      pageCount,
-      startTime
+    const fileBuffer = await StorageService.getFile(job.fileKey);
+    const { markdown, pageCount } = await parseDocument(
+      fileBuffer,
+      job.mimeType
     );
-  } else {
-    await finishParseJob(jobId, markdown, pageCount, startTime);
+
+    eventContext.pageCount = pageCount;
+
+    await updateJobStatus(jobId, "processing", {
+      markdownResult: markdown,
+      pageCount,
+    });
+
+    if (job.type === "extract") {
+      const schema = job.schema?.jsonSchema as
+        | Record<string, unknown>
+        | undefined;
+      await runExtraction(
+        jobId,
+        markdown,
+        schema,
+        job.llmModel,
+        job.llmProvider,
+        pageCount,
+        startTime
+      );
+    } else {
+      await finishParseJob(jobId, markdown, pageCount, startTime);
+    }
+
+    eventContext.status = "completed";
+    eventContext.outcome = "success";
+  } catch (error) {
+    eventContext.status = "failed";
+    eventContext.outcome = "error";
+
+    const isError = error instanceof Error;
+    eventContext.error = {
+      code: isError ? error.name : "UNKNOWN_ERROR",
+      message: isError ? error.message : String(error),
+      stack: isError ? error.stack : undefined,
+    };
+
+    throw error;
+  } finally {
+    eventContext.durationMs = Date.now() - startTime;
+    workerLogger.info(eventContext, "job_processing");
   }
 };
 
@@ -99,17 +135,8 @@ const worker = new Worker<JobData>("ocr-jobs", processJob, {
   connection,
 });
 
-worker.on("active", (job) => {
-  console.info(`[Worker] Job ${job.id} started processing`);
-});
-
-worker.on("completed", (job) => {
-  console.info(`[Worker] Job ${job.id} completed successfully`);
-});
-
 worker.on("failed", async (job, error) => {
   const jobId = job?.data.jobId;
-  console.error(`[Worker] Job ${job?.id} failed:`, error.message);
 
   if (jobId) {
     const errorCode = error.name || "PROCESSING_ERROR";
@@ -123,11 +150,20 @@ worker.on("failed", async (job, error) => {
 });
 
 worker.on("error", (error) => {
-  console.error("[Worker] Worker error:", error.message);
+  workerLogger.error(
+    {
+      error: {
+        code: error.name,
+        message: error.message,
+        stack: error.stack,
+      },
+    },
+    "worker_error"
+  );
 });
 
 const shutdown = async (): Promise<void> => {
-  console.info("[Worker] Shutting down...");
+  workerLogger.info({ event: "shutdown" }, "worker_lifecycle");
   await worker.close();
   process.exit(0);
 };
@@ -135,4 +171,4 @@ const shutdown = async (): Promise<void> => {
 process.on("SIGTERM", shutdown);
 process.on("SIGINT", shutdown);
 
-console.info("[Worker] Job worker started, waiting for jobs...");
+workerLogger.info({ event: "startup" }, "worker_lifecycle");

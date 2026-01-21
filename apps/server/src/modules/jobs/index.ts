@@ -2,10 +2,18 @@ import type { Job } from "@ocrbase/db/schema/jobs";
 
 import { Elysia, t } from "elysia";
 
+import type { WideEventContext } from "../../lib/wide-event";
 import type { JobResponse } from "./model";
 
 import { requireAuth } from "../../plugins/auth";
 import { JobService } from "./service";
+
+interface ContextWithWideEvent {
+  wideEvent?: WideEventContext;
+}
+
+const getWideEvent = (ctx: unknown): WideEventContext | undefined =>
+  (ctx as ContextWithWideEvent).wideEvent;
 
 const formatJobResponse = (job: Job): JobResponse => ({
   completedAt: job.completedAt?.toISOString() ?? null,
@@ -42,14 +50,23 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
   .use(requireAuth)
   .post(
     "/",
-    async ({ body, organization, set, user }) => {
+    async (ctx) => {
+      const { body, organization, set, user } = ctx;
+      const wideEvent = getWideEvent(ctx);
+
       if (!user || !organization) {
         set.status = 401;
         return { message: "Unauthorized" };
       }
 
       try {
-        if ("url" in body && body.url) {
+        // Check for valid URL (non-empty string that starts with http)
+        const hasValidUrl =
+          typeof body.url === "string" &&
+          body.url.length > 0 &&
+          body.url.startsWith("http");
+
+        if (hasValidUrl && body.url) {
           const job = await JobService.createFromUrl({
             body: {
               llmModel: body.llmModel,
@@ -60,6 +77,13 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
             },
             organizationId: organization.id,
             userId: user.id,
+          });
+
+          wideEvent?.setJob({
+            fileSize: job.fileSize,
+            id: job.id,
+            mimeType: job.mimeType,
+            type: job.type,
           });
 
           return formatJobResponse(job);
@@ -88,6 +112,13 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
           },
           organizationId: organization.id,
           userId: user.id,
+        });
+
+        wideEvent?.setJob({
+          fileSize: job.fileSize,
+          id: job.id,
+          mimeType: job.mimeType,
+          type: job.type,
         });
 
         return formatJobResponse(job);
@@ -157,7 +188,10 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
   )
   .get(
     "/:id",
-    async ({ organization, params, set, user }) => {
+    async (ctx) => {
+      const { organization, params, set, user } = ctx;
+      const wideEvent = getWideEvent(ctx);
+
       if (!user || !organization) {
         set.status = 401;
         return { message: "Unauthorized" };
@@ -174,6 +208,13 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
           set.status = 404;
           return { message: "Job not found" };
         }
+
+        wideEvent?.setJob({
+          id: job.id,
+          pageCount: job.pageCount ?? undefined,
+          status: job.status,
+          type: job.type,
+        });
 
         return formatJobResponse(job);
       } catch (error) {
@@ -189,7 +230,10 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
   )
   .delete(
     "/:id",
-    async ({ organization, params, set, user }) => {
+    async (ctx) => {
+      const { organization, params, set, user } = ctx;
+      const wideEvent = getWideEvent(ctx);
+
       if (!user || !organization) {
         set.status = 401;
         return { message: "Unauthorized" };
@@ -206,6 +250,8 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
           set.status = 404;
           return { message: "Job not found" };
         }
+
+        wideEvent?.setJob({ id: job.id, type: job.type });
 
         await JobService.delete(organization.id, user.id, params.id);
 
@@ -223,7 +269,10 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
   )
   .get(
     "/:id/download",
-    async ({ organization, params, query, set, user }) => {
+    async (ctx) => {
+      const { organization, params, query, set, user } = ctx;
+      const wideEvent = getWideEvent(ctx);
+
       if (!user || !organization) {
         set.status = 401;
         return { message: "Unauthorized" };
@@ -238,6 +287,8 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
             params.id,
             format
           );
+
+        wideEvent?.setJob({ id: params.id });
 
         set.headers["Content-Type"] = contentType;
         set.headers["Content-Disposition"] =

@@ -9,9 +9,9 @@ import { jobsRoutes } from "./modules/jobs";
 import { jobsWebSocket } from "./modules/jobs/websocket";
 import { schemasRoutes } from "./modules/schemas";
 import { errorHandlerPlugin } from "./plugins/errorHandler";
-import { loggingPlugin } from "./plugins/logging";
 import { rateLimitPlugin } from "./plugins/rateLimit";
 import { securityPlugin } from "./plugins/security";
+import { wideEventPlugin } from "./plugins/wide-event";
 
 export const app = new Elysia()
   .use(
@@ -42,7 +42,7 @@ export const app = new Elysia()
     })
   )
   .use(securityPlugin)
-  .use(loggingPlugin)
+  .use(wideEventPlugin)
   .use(rateLimitPlugin)
   .use(errorHandlerPlugin)
   .all("/api/auth/*", (context) => auth.handler(context.request))

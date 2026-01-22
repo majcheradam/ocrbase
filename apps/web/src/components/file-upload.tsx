@@ -1,21 +1,18 @@
-import { Loader2, Upload } from "lucide-react";
+import { FileUp, Loader2 } from "lucide-react";
 import { type default as React, useCallback, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface FileUploadProps {
   mode: "parsing" | "extraction";
   isLoading?: boolean;
   onFileSelect: (file: File) => void;
-  onUrlSubmit?: (url: string) => void;
 }
 
 export const FileUpload = ({
   mode,
   isLoading = false,
   onFileSelect,
-  onUrlSubmit,
 }: FileUploadProps): React.ReactNode => {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -54,62 +51,56 @@ export const FileUpload = ({
     [onFileSelect]
   );
 
-  const modeText = mode === "parsing" ? "parse" : "extract data from";
-
   return (
     <div className="flex flex-col items-center justify-center h-full p-8">
-      <h2 className="text-2xl text-foreground mb-8">
-        Upload PDF or image to {modeText}.
-      </h2>
+      <h1 className="text-2xl text-foreground mb-8">
+        {mode === "parsing"
+          ? "Upload a document or image to parse"
+          : "Upload a document or image to extract data"}
+      </h1>
 
-      <div
+      <label
+        aria-label="Upload file"
         className={cn(
-          "w-full max-w-md border-2 border-dashed rounded-lg p-8 transition-colors",
+          "w-full max-w-lg border-2 border-dashed rounded-2xl p-12 transition-colors cursor-pointer",
           isDragging
             ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25"
+            : "border-muted-foreground/20",
+          isLoading && "pointer-events-none opacity-60"
         )}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <div className="flex flex-col items-center gap-4">
-          {isLoading ? (
-            <Loader2 className="size-8 text-muted-foreground animate-spin" />
-          ) : (
-            <Upload className="size-8 text-muted-foreground" />
-          )}
+        <input
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.tiff"
+          onChange={handleFileChange}
+          disabled={isLoading}
+          className="sr-only"
+        />
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="relative"
-              disabled={isLoading}
-            >
-              <input
-                type="file"
-                accept=".pdf,.png,.jpg,.jpeg,.webp,.tiff"
-                onChange={handleFileChange}
-                disabled={isLoading}
-                className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed"
-              />
-              {isLoading ? "Uploading..." : "Upload new"}
-            </Button>
-            {onUrlSubmit && (
-              <Button variant="ghost" size="sm" disabled={isLoading}>
-                Add from URL
-              </Button>
+        <div className="flex flex-col items-center gap-4">
+          <div className="size-13 rounded-xl bg-card border flex items-center justify-center">
+            {isLoading ? (
+              <Loader2 className="size-6 animate-spin" />
+            ) : (
+              <FileUp className="size-6" />
             )}
           </div>
 
-          <p className="text-sm text-muted-foreground">
-            {isLoading
-              ? "Processing your file..."
-              : "Drop a file here, or use the options above"}
-          </p>
+          <div className="text-center">
+            <p className="text-foreground font-medium">
+              {isLoading ? "Uploading..." : "Click to upload, or drag and drop"}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isLoading
+                ? "Processing your file..."
+                : "PDF or image files up to 50MB"}
+            </p>
+          </div>
         </div>
-      </div>
+      </label>
     </div>
   );
 };

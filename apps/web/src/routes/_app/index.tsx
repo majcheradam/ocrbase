@@ -37,24 +37,6 @@ const RouteComponent = () => {
     }
   }, []);
 
-  const handleUrlSubmit = useCallback(
-    async (url: string) => {
-      try {
-        const job = await createJob.mutateAsync({
-          llmModel: model,
-          type: mode === "parsing" ? "parse" : "extract",
-          url,
-        });
-        navigate({ params: { jobId: job.id }, to: "/job/$jobId" });
-      } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Failed to create job"
-        );
-      }
-    },
-    [mode, model, createJob, navigate]
-  );
-
   return (
     <div className="flex h-full flex-col">
       <header className="flex items-center gap-4 px-6 py-3 shrink-0">
@@ -67,7 +49,6 @@ const RouteComponent = () => {
           mode={mode}
           isLoading={createJob.isPending}
           onFileSelect={handleFileSelect}
-          onUrlSubmit={handleUrlSubmit}
         />
       </div>
     </div>

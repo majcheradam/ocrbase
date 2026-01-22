@@ -12,6 +12,10 @@ import { StorageService } from "../../services/storage";
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 20;
 
+// Convert "undefined" string to null (FormData serialization issue)
+const sanitizeOptional = (value: string | undefined | null): string | null =>
+  value === undefined || value === "undefined" || value === "" ? null : value;
+
 interface CreateJobInput {
   body: CreateJobBody;
   file: {
@@ -38,17 +42,27 @@ interface ListJobsResult {
 const create = async (input: CreateJobInput): Promise<Job> => {
   const { body, file, organizationId, userId } = input;
 
+  // Generate job ID first so we can use it in the file path
+  const { createId } = await import("@ocrbase/db/lib/ids");
+  const jobId = createId("job");
+  const fileKey = `${organizationId}/jobs/${jobId}/${file.name}`;
+
+  // Upload file to storage first
+  await StorageService.uploadFile(fileKey, file.buffer, file.type);
+
+  // Insert job with the correct fileKey
   const [newJob] = await db
     .insert(jobs)
     .values({
-      fileKey: "",
+      fileKey,
       fileName: file.name,
       fileSize: file.size,
-      llmModel: body.llmModel,
-      llmProvider: body.llmProvider,
+      id: jobId,
+      llmModel: sanitizeOptional(body.llmModel),
+      llmProvider: sanitizeOptional(body.llmProvider),
       mimeType: file.type,
       organizationId,
-      schemaId: body.schemaId,
+      schemaId: sanitizeOptional(body.schemaId),
       status: "pending",
       type: body.type,
       userId,
@@ -56,30 +70,22 @@ const create = async (input: CreateJobInput): Promise<Job> => {
     .returning();
 
   if (!newJob) {
+    // Clean up uploaded file if job creation fails
+    try {
+      await StorageService.deleteFile(fileKey);
+    } catch {
+      // Ignore cleanup errors
+    }
     throw new Error("Failed to create job");
   }
 
-  const fileKey = `${organizationId}/jobs/${newJob.id}/${file.name}`;
-
-  await StorageService.uploadFile(fileKey, file.buffer, file.type);
-
-  const [updatedJob] = await db
-    .update(jobs)
-    .set({ fileKey })
-    .where(eq(jobs.id, newJob.id))
-    .returning();
-
-  if (!updatedJob) {
-    throw new Error("Failed to update job with file key");
-  }
-
   await addJob({
-    jobId: updatedJob.id,
+    jobId: newJob.id,
     organizationId,
     userId,
   });
 
-  return updatedJob;
+  return newJob;
 };
 
 const createFromUrl = async (input: CreateJobFromUrlInput): Promise<Job> => {
@@ -233,11 +239,30 @@ const getDownloadContent = async (
   };
 };
 
+const getFileUrl = async (
+  organizationId: string,
+  userId: string,
+  jobId: string
+): Promise<string> => {
+  const job = await getById(organizationId, userId, jobId);
+
+  if (!job) {
+    throw new Error("Job not found");
+  }
+
+  if (!job.fileKey) {
+    throw new Error("Job has no associated file");
+  }
+
+  return StorageService.getPresignedUrl(job.fileKey);
+};
+
 export const JobService = {
   create,
   createFromUrl,
   delete: deleteJob,
   getById,
   getDownloadContent,
+  getFileUrl,
   list,
 };

@@ -268,6 +268,46 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
     }
   )
   .get(
+    "/:id/file",
+    async (ctx) => {
+      const { organization, params, set, user } = ctx;
+      const wideEvent = getWideEvent(ctx);
+
+      if (!user || !organization) {
+        set.status = 401;
+        return { message: "Unauthorized" };
+      }
+
+      try {
+        const url = await JobService.getFileUrl(
+          organization.id,
+          user.id,
+          params.id
+        );
+
+        wideEvent?.setJob({ id: params.id });
+
+        return { url };
+      } catch (error) {
+        const message = getErrorMessage(error, "Failed to get file URL");
+        if (
+          message === "Job not found" ||
+          message === "Job has no associated file"
+        ) {
+          set.status = 404;
+        } else {
+          set.status = 500;
+        }
+        return { message };
+      }
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+    }
+  )
+  .get(
     "/:id/download",
     async (ctx) => {
       const { organization, params, query, set, user } = ctx;

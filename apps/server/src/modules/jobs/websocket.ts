@@ -1,5 +1,6 @@
 import { auth } from "@ocrbase/auth";
 import { db } from "@ocrbase/db";
+import { member, organization } from "@ocrbase/db/schema/auth";
 import { jobs } from "@ocrbase/db/schema/jobs";
 import { and, eq } from "drizzle-orm";
 import { Elysia } from "elysia";
@@ -60,7 +61,22 @@ export const jobsWebSocket = new Elysia().ws("/ws/jobs/:jobId", {
     }
 
     const userId = session.user.id;
-    const activeOrg = session.session.activeOrganizationId;
+    let activeOrg = session.session.activeOrganizationId;
+
+    // If no active org in session, find user's first organization
+    if (!activeOrg) {
+      const userMembership = await db
+        .select({ organization: organization })
+        .from(member)
+        .innerJoin(organization, eq(member.organizationId, organization.id))
+        .where(eq(member.userId, userId))
+        .limit(1);
+
+      const [firstMembership] = userMembership;
+      if (firstMembership) {
+        activeOrg = firstMembership.organization.id;
+      }
+    }
 
     if (!activeOrg) {
       ws.send(

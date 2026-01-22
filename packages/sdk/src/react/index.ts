@@ -11,6 +11,7 @@ export {
   useDeleteJob,
   useDownloadJob,
   useJob,
+  useJobFileUrl,
   useJobs,
 } from "./hooks/use-jobs";
 

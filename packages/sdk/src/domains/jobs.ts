@@ -19,18 +19,25 @@ export interface JobsClient {
   delete: (id: string) => Promise<{ message: string }>;
   /** Download job result as markdown or JSON */
   download: (id: string, format?: "md" | "json") => Promise<string>;
+  /** Get presigned URL for viewing the uploaded file */
+  getFileUrl: (id: string) => Promise<string>;
 }
 
 export const createJobsClient = (eden: EdenClient): JobsClient => ({
   create: async (input) => {
-    const { data, error } = await eden.api.jobs.post({
-      file: input.file,
-      llmModel: input.llmModel,
-      llmProvider: input.llmProvider,
-      schemaId: input.schemaId,
+    // Build body with only defined values to avoid "undefined" strings in FormData
+    const body = {
       type: input.type,
-      url: input.url,
-    });
+      ...(input.file !== undefined && { file: input.file }),
+      ...(input.url !== undefined && { url: input.url }),
+      ...(input.llmModel !== undefined && { llmModel: input.llmModel }),
+      ...(input.llmProvider !== undefined && {
+        llmProvider: input.llmProvider,
+      }),
+      ...(input.schemaId !== undefined && { schemaId: input.schemaId }),
+    };
+
+    const { data, error } = await eden.api.jobs.post(body);
 
     if (error) {
       throw SDKError.fromEdenError(error);
@@ -69,6 +76,16 @@ export const createJobsClient = (eden: EdenClient): JobsClient => ({
     }
 
     return data as JobResponse;
+  },
+
+  getFileUrl: async (id) => {
+    const { data, error } = await eden.api.jobs({ id }).file.get();
+
+    if (error) {
+      throw SDKError.fromEdenError(error);
+    }
+
+    return (data as { url: string }).url;
   },
 
   list: async (query = {}) => {

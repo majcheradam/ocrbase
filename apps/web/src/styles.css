@@ -155,6 +155,7 @@
   }
   html {
     scroll-behavior: smooth;
+    color-scheme: light dark;
   }
   body {
     @apply bg-background text-foreground antialiased;
@@ -170,6 +171,30 @@
       Arial,
       "Noto Sans",
       sans-serif;
+  }
+
+  /* Custom scrollbar for Chrome/Webkit */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.7 0 0);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.5 0 0);
+  }
+  .dark ::-webkit-scrollbar-thumb,
+  :root:not(.light) ::-webkit-scrollbar-thumb {
+    background: oklch(0.4 0 0);
+  }
+  .dark ::-webkit-scrollbar-thumb:hover,
+  :root:not(.light) ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.5 0 0);
   }
 }
 

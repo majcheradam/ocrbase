@@ -1,3 +1,5 @@
+import type React from "react";
+
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import { cva, type VariantProps } from "class-variance-authority";
 
@@ -7,7 +9,7 @@ const Tabs = ({
   className,
   orientation = "horizontal",
   ...props
-}: TabsPrimitive.Root.Props) => {
+}: TabsPrimitive.Root.Props): React.ReactNode => (
   <TabsPrimitive.Root
     data-slot="tabs"
     data-orientation={orientation}
@@ -16,8 +18,8 @@ const Tabs = ({
       className
     )}
     {...props}
-  />;
-};
+  />
+);
 
 const tabsListVariants = cva(
   "rounded-lg p-[3px] group-data-horizontal/tabs:h-9 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col",
@@ -38,7 +40,8 @@ const TabsList = ({
   className,
   variant = "default",
   ...props
-}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) => (
+}: TabsPrimitive.List.Props &
+  VariantProps<typeof tabsListVariants>): React.ReactNode => (
   <TabsPrimitive.List
     data-slot="tabs-list"
     data-variant={variant}
@@ -47,7 +50,10 @@ const TabsList = ({
   />
 );
 
-const TabsTrigger = ({ className, ...props }: TabsPrimitive.Tab.Props) => (
+const TabsTrigger = ({
+  className,
+  ...props
+}: TabsPrimitive.Tab.Props): React.ReactNode => (
   <TabsPrimitive.Tab
     data-slot="tabs-trigger"
     className={cn(
@@ -61,7 +67,10 @@ const TabsTrigger = ({ className, ...props }: TabsPrimitive.Tab.Props) => (
   />
 );
 
-const TabsContent = ({ className, ...props }: TabsPrimitive.Panel.Props) => (
+const TabsContent = ({
+  className,
+  ...props
+}: TabsPrimitive.Panel.Props): React.ReactNode => (
   <TabsPrimitive.Panel
     data-slot="tabs-content"
     className={cn("text-sm flex-1 outline-none", className)}

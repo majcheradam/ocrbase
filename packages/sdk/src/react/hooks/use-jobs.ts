@@ -19,6 +19,7 @@ export const jobKeys = {
   all: ["jobs"] as const,
   detail: (id: string) => [...jobKeys.details(), id] as const,
   details: () => [...jobKeys.all, "detail"] as const,
+  fileUrl: (id: string) => [...jobKeys.all, "fileUrl", id] as const,
   list: (query?: ListJobsQuery) => [...jobKeys.lists(), query] as const,
   lists: () => [...jobKeys.all, "list"] as const,
 };
@@ -86,5 +87,21 @@ export const useDownloadJob = (): UseMutationResult<
 
   return useMutation({
     mutationFn: ({ format, id }) => client.jobs.download(id, format),
+  });
+};
+
+// Presigned URLs are valid for 1 hour, so cache for 30 minutes
+const PRESIGNED_URL_STALE_TIME = 1000 * 60 * 30;
+
+export const useJobFileUrl = (
+  id: string | undefined
+): UseQueryResult<string> => {
+  const client = useOCRBaseClient();
+
+  return useQuery({
+    enabled: Boolean(id),
+    queryFn: () => client.jobs.getFileUrl(id ?? ""),
+    queryKey: jobKeys.fileUrl(id ?? ""),
+    staleTime: PRESIGNED_URL_STALE_TIME,
   });
 };

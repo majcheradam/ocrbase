@@ -1,6 +1,6 @@
 import { env } from "@ocrbase/env/web";
 import { OCRBaseProvider } from "@ocrbase/sdk/react";
-import { TanStackDevtools } from "@tanstack/react-devtools";
+// import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   HeadContent,
@@ -8,7 +8,7 @@ import {
   Scripts,
   createRootRoute,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+// import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import { Toaster } from "@/components/ui/sonner";
 
@@ -37,7 +37,7 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => (
           <Toaster richColors closeButton position="bottom-right" />
         </OCRBaseProvider>
       </QueryClientProvider>
-      <TanStackDevtools
+      {/* <TanStackDevtools
         config={{
           position: "bottom-right",
         }}
@@ -47,7 +47,7 @@ const RootDocument = ({ children }: { children: React.ReactNode }) => (
             render: <TanStackRouterDevtoolsPanel />,
           },
         ]}
-      />
+      /> */}
       <Scripts />
     </body>
   </html>

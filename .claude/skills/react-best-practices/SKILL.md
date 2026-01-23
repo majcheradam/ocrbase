@@ -149,7 +149,7 @@ useEffect(() => {
 // next.config.js
 module.exports = {
   experimental: {
-    optimizePackageImports: ["lodash", "date-fns", "@radix-ui/react-icons"],
+    optimizePackageImports: ["lodash", "date-fns", "@base-ui/react"],
   },
 };
 ```

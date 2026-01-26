@@ -130,10 +130,12 @@ Severity levels:
 **Fix:**
 
 ```tsx
-// Use Base UI components which handle focus management automatically
-import { Dialog } from "@base-ui/react/dialog";
+// Add focus trap using Base UI's FocusTrap or similar
+import { FocusTrap } from "@base-ui-components/react/focus-trap";
 
-<Dialog.Popup>{children}</Dialog.Popup>;
+<FocusTrap>
+  <ModalContent>{children}</ModalContent>
+</FocusTrap>;
 ```
 
 ### Warning: Loading State Duration

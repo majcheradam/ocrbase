@@ -14,10 +14,20 @@ export interface JobData {
   userId: string;
 }
 
-export const connection: ConnectionOptions = {
-  host: env.REDIS_URL ? new URL(env.REDIS_URL).hostname : "localhost",
-  port: env.REDIS_URL ? Number(new URL(env.REDIS_URL).port) || 6379 : 6379,
+const getRedisConnection = (): ConnectionOptions => {
+  if (!env.REDIS_URL) {
+    return { host: "localhost", port: 6379 };
+  }
+  const url = new URL(env.REDIS_URL);
+  return {
+    host: url.hostname,
+    password: url.password || undefined,
+    port: Number(url.port) || 6379,
+    username: url.username || undefined,
+  };
 };
+
+export const connection: ConnectionOptions = getRedisConnection();
 
 export const jobQueue = new Queue<JobData>("ocr-jobs", {
   connection,

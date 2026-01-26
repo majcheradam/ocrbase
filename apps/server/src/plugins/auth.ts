@@ -8,21 +8,54 @@ import { Elysia } from "elysia";
 
 import type { WideEventContext } from "../lib/wide-event";
 
+import { apiKeyPlugin } from "./api-key";
+
 type Organization = Awaited<ReturnType<typeof auth.api.getFullOrganization>>;
 
-export const authPlugin = new Elysia({ name: "auth" }).derive(
+export const authPlugin = new Elysia({ name: "auth" }).use(apiKeyPlugin).derive(
   { as: "global" },
   async ({
+    apiKey,
+    apiKeyAuth,
     request,
     wideEvent,
   }: {
+    apiKey?: { id: string; name: string } | null;
+    apiKeyAuth?: boolean;
     request: Request;
     wideEvent?: WideEventContext;
   }): Promise<{
-    user: User | null;
-    session: Session | null;
     organization: Organization | null;
+    session: Session | null;
+    user: User | null;
   }> => {
+    // If API key auth succeeded, create a virtual user/session
+    if (apiKeyAuth && apiKey) {
+      wideEvent?.setUser({ id: `apikey:${apiKey.id}` });
+      return {
+        organization: null,
+        session: {
+          createdAt: new Date(),
+          expiresAt: new Date(Date.now() + 86_400_000),
+          id: `apikey:${apiKey.id}`,
+          ipAddress: null,
+          token: "",
+          updatedAt: new Date(),
+          userAgent: request.headers.get("user-agent"),
+          userId: `apikey:${apiKey.id}`,
+        },
+        user: {
+          createdAt: new Date(),
+          email: `${apiKey.name}@apikey.local`,
+          emailVerified: true,
+          id: `apikey:${apiKey.id}`,
+          image: null,
+          name: apiKey.name,
+          updatedAt: new Date(),
+        },
+      };
+    }
+
     const session = await auth.api.getSession({
       headers: request.headers,
     });

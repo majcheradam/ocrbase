@@ -13,7 +13,7 @@ COPY packages/config/package.json ./packages/config/
 COPY packages/paddleocr-vl-ts/package.json ./packages/paddleocr-vl-ts/
 
 # Install dependencies
-RUN bun install --frozen-lockfile
+RUN bun install --ignore-scripts
 
 # Copy source code
 COPY . .

@@ -1,22 +1,22 @@
 ---
 name: react-best-practices
-description: React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.
+description: React and TanStack Start performance optimization guidelines. This skill should be used when writing, reviewing, or refactoring React/TanStack Start code to ensure optimal performance patterns. Triggers on tasks involving React components, TanStack Start routes, data fetching, bundle optimization, or performance improvements.
 ---
 
 # React Best Practices
 
 ## Overview
 
-Comprehensive performance optimization guide for React and Next.js applications, containing 40+ rules across 8 categories. Rules are prioritized by impact to guide automated refactoring and code generation.
+Comprehensive performance optimization guide for React and TanStack Start applications, containing 40+ rules across 8 categories. Rules are prioritized by impact to guide automated refactoring and code generation.
 
 ## When to Apply
 
 Reference these guidelines when:
 
-- Writing new React components or Next.js pages
+- Writing new React components or TanStack Start routes
 - Implementing data fetching (client or server-side)
 - Reviewing code for performance issues
-- Refactoring existing React/Next.js code
+- Refactoring existing React/TanStack Start code
 - Optimizing bundle size or load times
 
 ## Priority-Ordered Guidelines
@@ -123,13 +123,17 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns/format";
 ```
 
-### Rule: Use next/dynamic for heavy components
+### Rule: Use React.lazy for heavy components
 
 ```tsx
-const HeavyChart = dynamic(() => import("./Chart"), {
-  loading: () => <ChartSkeleton />,
-  ssr: false,
-});
+import { lazy, Suspense } from "react";
+
+const HeavyChart = lazy(() => import("./Chart"));
+
+// Usage with Suspense boundary
+<Suspense fallback={<ChartSkeleton />}>
+  <HeavyChart />
+</Suspense>;
 ```
 
 ### Rule: Defer third-party libraries
@@ -143,15 +147,26 @@ useEffect(() => {
 }, []);
 ```
 
-### Rule: Configure optimizePackageImports
+### Rule: Configure tree-shaking and bundle optimization
 
-```js
-// next.config.js
-module.exports = {
-  experimental: {
-    optimizePackageImports: ["lodash", "date-fns", "@base-ui/react"],
+```ts
+// app.config.ts (TanStack Start)
+import { defineConfig } from "@tanstack/react-start/config";
+
+export default defineConfig({
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ["lodash", "date-fns"],
+            ui: ["@base-ui-components/react"],
+          },
+        },
+      },
+    },
   },
-};
+});
 ```
 
 ## Category 3: Server-Side Performance (HIGH)

@@ -1,9 +1,11 @@
 import { nanoid } from "nanoid";
 
 export const ID_PREFIXES = {
+  apiKey: "ak",
+  apiKeyUsage: "aku",
   job: "job",
-  schema: "sch",
   organization: "org",
+  schema: "sch",
 } as const;
 
 type IdPrefix = keyof typeof ID_PREFIXES;

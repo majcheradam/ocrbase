@@ -2,7 +2,7 @@
 
 ## Conventional Commits (Strict)
 
-Follow https://www.conventionalcommits.org/en/v1.0.0/
+Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`, `build`
 

@@ -130,12 +130,12 @@ Severity levels:
 **Fix:**
 
 ```tsx
-// Add focus trap using @radix-ui/react-focus-guards or similar
-import { FocusScope } from "@radix-ui/react-focus-scope";
+// Add focus trap using Base UI's FocusTrap or similar
+import { FocusTrap } from "@base-ui-components/react/focus-trap";
 
-<FocusScope trapped>
+<FocusTrap>
   <ModalContent>{children}</ModalContent>
-</FocusScope>;
+</FocusTrap>;
 ```
 
 ### Warning: Loading State Duration

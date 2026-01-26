@@ -19,6 +19,8 @@ export const apiKeys = pgTable(
     name: text("name").notNull(),
     keyHash: text("key_hash").notNull().unique(),
     keyPrefix: text("key_prefix").notNull(),
+    organizationId: text("organization_id").notNull(),
+    userId: text("user_id").notNull(),
     isActive: boolean("is_active").notNull().default(true),
     requestCount: integer("request_count").notNull().default(0),
     lastUsedAt: timestamp("last_used_at"),
@@ -31,6 +33,8 @@ export const apiKeys = pgTable(
   (table) => [
     index("api_keys_key_hash_idx").on(table.keyHash),
     index("api_keys_is_active_idx").on(table.isActive),
+    index("api_keys_organization_id_idx").on(table.organizationId),
+    index("api_keys_user_id_idx").on(table.userId),
   ]
 );
 

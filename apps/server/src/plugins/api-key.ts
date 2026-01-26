@@ -3,13 +3,7 @@ import { apiKeys, apiKeyUsage } from "@ocrbase/db/schema/api-keys";
 import { eq, sql } from "drizzle-orm";
 import { Elysia } from "elysia";
 
-const hashKey = async (key: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(key);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = [...new Uint8Array(hashBuffer)];
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-};
+import { hashApiKey } from "../lib/api-key";
 
 export const apiKeyPlugin = new Elysia({ name: "api-key" })
   .derive(
@@ -17,7 +11,12 @@ export const apiKeyPlugin = new Elysia({ name: "api-key" })
     async ({
       request,
     }): Promise<{
-      apiKey: { id: string; name: string } | null;
+      apiKey: {
+        id: string;
+        name: string;
+        organizationId: string;
+        userId: string;
+      } | null;
       apiKeyAuth: boolean;
     }> => {
       const authHeader = request.headers.get("authorization");
@@ -27,13 +26,15 @@ export const apiKeyPlugin = new Elysia({ name: "api-key" })
       }
 
       const token = authHeader.slice(7);
-      const keyHash = await hashKey(token);
+      const keyHash = await hashApiKey(token);
 
       const [foundKey] = await db
         .select({
           id: apiKeys.id,
           isActive: apiKeys.isActive,
           name: apiKeys.name,
+          organizationId: apiKeys.organizationId,
+          userId: apiKeys.userId,
         })
         .from(apiKeys)
         .where(eq(apiKeys.keyHash, keyHash))
@@ -53,7 +54,12 @@ export const apiKeyPlugin = new Elysia({ name: "api-key" })
         .where(eq(apiKeys.id, foundKey.id));
 
       return {
-        apiKey: { id: foundKey.id, name: foundKey.name },
+        apiKey: {
+          id: foundKey.id,
+          name: foundKey.name,
+          organizationId: foundKey.organizationId,
+          userId: foundKey.userId,
+        },
         apiKeyAuth: true,
       };
     }
@@ -61,7 +67,12 @@ export const apiKeyPlugin = new Elysia({ name: "api-key" })
   .onAfterResponse(
     { as: "global" },
     async (context: {
-      apiKey?: { id: string; name: string } | null;
+      apiKey?: {
+        id: string;
+        name: string;
+        organizationId: string;
+        userId: string;
+      } | null;
       path: string;
       request: Request;
       set: { status?: number | string };

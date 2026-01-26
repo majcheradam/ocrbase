@@ -2,7 +2,7 @@ import type { Session, User } from "better-auth/types";
 
 import { auth } from "@ocrbase/auth";
 import { db } from "@ocrbase/db";
-import { member, organization } from "@ocrbase/db/schema/auth";
+import { member, organization, user } from "@ocrbase/db/schema/auth";
 import { eq } from "drizzle-orm";
 import { Elysia } from "elysia";
 
@@ -20,7 +20,12 @@ export const authPlugin = new Elysia({ name: "auth" }).use(apiKeyPlugin).derive(
     request,
     wideEvent,
   }: {
-    apiKey?: { id: string; name: string } | null;
+    apiKey?: {
+      id: string;
+      name: string;
+      organizationId: string;
+      userId: string;
+    } | null;
     apiKeyAuth?: boolean;
     request: Request;
     wideEvent?: WideEventContext;
@@ -29,11 +34,39 @@ export const authPlugin = new Elysia({ name: "auth" }).use(apiKeyPlugin).derive(
     session: Session | null;
     user: User | null;
   }> => {
-    // If API key auth succeeded, create a virtual user/session
+    // If API key auth succeeded, fetch real user/org from DB
     if (apiKeyAuth && apiKey) {
-      wideEvent?.setUser({ id: `apikey:${apiKey.id}` });
+      const [dbUser] = await db
+        .select()
+        .from(user)
+        .where(eq(user.id, apiKey.userId));
+      const [dbOrg] = await db
+        .select()
+        .from(organization)
+        .where(eq(organization.id, apiKey.organizationId));
+
+      if (!dbUser) {
+        return { organization: null, session: null, user: null };
+      }
+
+      wideEvent?.setUser({ id: dbUser.id });
+      if (dbOrg) {
+        wideEvent?.setOrganization({ id: dbOrg.id, name: dbOrg.name });
+      }
+
       return {
-        organization: null,
+        organization: dbOrg
+          ? {
+              createdAt: dbOrg.createdAt,
+              id: dbOrg.id,
+              invitations: [],
+              logo: dbOrg.logo,
+              members: [],
+              metadata: dbOrg.metadata,
+              name: dbOrg.name,
+              slug: dbOrg.slug ?? dbOrg.id,
+            }
+          : null,
         session: {
           createdAt: new Date(),
           expiresAt: new Date(Date.now() + 86_400_000),
@@ -42,17 +75,9 @@ export const authPlugin = new Elysia({ name: "auth" }).use(apiKeyPlugin).derive(
           token: "",
           updatedAt: new Date(),
           userAgent: request.headers.get("user-agent"),
-          userId: `apikey:${apiKey.id}`,
+          userId: dbUser.id,
         },
-        user: {
-          createdAt: new Date(),
-          email: `${apiKey.name}@apikey.local`,
-          emailVerified: true,
-          id: `apikey:${apiKey.id}`,
-          image: null,
-          name: apiKey.name,
-          updatedAt: new Date(),
-        },
+        user: dbUser,
       };
     }
 

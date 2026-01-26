@@ -1,20 +1,19 @@
 import { db } from "@ocrbase/db";
 import { apiKeys, apiKeyUsage } from "@ocrbase/db/schema/api-keys";
 import { and, desc, eq, gte, sql } from "drizzle-orm";
-import { nanoid } from "nanoid";
 
-const hashKey = async (key: string): Promise<string> => {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(key);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = [...new Uint8Array(hashBuffer)];
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-};
-
-const generateApiKey = (): string => `sk${nanoid(32)}`;
+import { generateApiKey, getKeyPrefix, hashApiKey } from "../../lib/api-key";
 
 export const KeyService = {
-  async create(name: string): Promise<{
+  async create({
+    name,
+    organizationId,
+    userId,
+  }: {
+    name: string;
+    organizationId: string;
+    userId: string;
+  }): Promise<{
     id: string;
     key: string;
     keyPrefix: string;
@@ -23,8 +22,8 @@ export const KeyService = {
     createdAt: Date;
   }> {
     const rawKey = generateApiKey();
-    const keyHash = await hashKey(rawKey);
-    const keyPrefix = rawKey.slice(0, 8);
+    const keyHash = await hashApiKey(rawKey);
+    const keyPrefix = getKeyPrefix(rawKey);
 
     const [created] = await db
       .insert(apiKeys)
@@ -32,6 +31,8 @@ export const KeyService = {
         keyHash,
         keyPrefix,
         name,
+        organizationId,
+        userId,
       })
       .returning();
 

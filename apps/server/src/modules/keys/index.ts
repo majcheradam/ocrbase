@@ -31,9 +31,19 @@ export const keysRoutes = new Elysia({ prefix: "/api/keys" })
   .use(requireAuth)
   .post(
     "/",
-    async ({ body, set }) => {
+    async ({ body, organization, set, user }) => {
+      // requireAuth guarantees user exists, but TS needs narrowing
+      if (!user) {
+        set.status = 401;
+        return { message: "Unauthorized" };
+      }
+
       try {
-        const result = await KeyService.create(body.name);
+        const result = await KeyService.create({
+          name: body.name,
+          organizationId: organization?.id ?? user.id,
+          userId: user.id,
+        });
 
         return {
           createdAt: result.createdAt.toISOString(),

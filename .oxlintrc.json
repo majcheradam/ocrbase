@@ -14,6 +14,21 @@
     "unicorn/no-abusive-eslint-disable": "off",
     "unicorn/filename-case": "off",
     "import/consistent-type-specifier-style": "off",
-    "max-statements": "off"
-  }
+    "max-statements": "off",
+    "jest/require-hook": "off"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx",
+        "**/__tests__/**"
+      ],
+      "rules": {
+        "jest/require-hook": "error"
+      }
+    }
+  ]
 }

@@ -22,15 +22,19 @@ export const wideEventPlugin = new Elysia({ name: "wideEvent" })
     return { requestId, wideEvent };
   })
   .onAfterHandle({ as: "global" }, ({ requestId, set, wideEvent }) => {
+    if (!wideEvent || !requestId) {
+      return;
+    }
     set.headers["X-Request-Id"] = requestId;
     const statusCode =
       typeof set.status === "number" ? set.status : Number(set.status) || 200;
     logger.info(wideEvent.finalize(statusCode));
   })
-  .onError({ as: "global" }, ({ error, set, wideEvent }) => {
-    if (!wideEvent) {
+  .onError({ as: "global" }, ({ error, requestId, set, wideEvent }) => {
+    if (!wideEvent || !requestId) {
       return;
     }
+    set.headers["X-Request-Id"] = requestId;
     wideEvent.setError(error);
     const statusCode =
       typeof set.status === "number" ? set.status : Number(set.status) || 500;

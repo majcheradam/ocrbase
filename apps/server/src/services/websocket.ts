@@ -90,7 +90,6 @@ const initializeMessageHandler = (): void => {
   });
 };
 
-// oxlint-disable-next-line jest/require-hook
 initializeMessageHandler();
 
 export const closeWebSocketConnections = async (): Promise<void> => {

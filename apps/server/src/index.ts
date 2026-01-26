@@ -11,7 +11,6 @@ const startServer = (): void => {
   });
 };
 
-// oxlint-disable-next-line jest/require-hook -- Production server code, not a test
 startServer();
 
 export type { App };

@@ -1,4 +1,3 @@
-/* eslint-disable eslint-plugin-jest/require-hook */
 import { type Job as BullJob, Worker } from "bullmq";
 
 import {

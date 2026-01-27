@@ -4,10 +4,12 @@ import { auth } from "@ocrbase/auth";
 import { env } from "@ocrbase/env/server";
 import { Elysia } from "elysia";
 
+import { extractRoutes } from "./modules/extract";
 import { healthRoutes } from "./modules/health";
 import { jobsRoutes } from "./modules/jobs";
 import { jobsWebSocket } from "./modules/jobs/websocket";
 import { keysRoutes } from "./modules/keys";
+import { parseRoutes } from "./modules/parse";
 import { schemasRoutes } from "./modules/schemas";
 import { errorHandlerPlugin } from "./plugins/errorHandler";
 import { rateLimitPlugin } from "./plugins/rateLimit";
@@ -27,6 +29,8 @@ export const app = new Elysia()
         tags: [
           { description: "Health check endpoints", name: "Health" },
           { description: "Authentication endpoints", name: "Auth" },
+          { description: "Document parsing (OCR to markdown)", name: "Parse" },
+          { description: "Structured data extraction", name: "Extract" },
           { description: "OCR job management", name: "Jobs" },
           { description: "API key management", name: "Keys" },
           { description: "Extraction schema management", name: "Schemas" },
@@ -49,6 +53,8 @@ export const app = new Elysia()
   .use(errorHandlerPlugin)
   .all("/api/auth/*", (context) => auth.handler(context.request))
   .use(healthRoutes)
+  .use(parseRoutes)
+  .use(extractRoutes)
   .use(jobsRoutes)
   .use(keysRoutes)
   .use(schemasRoutes)

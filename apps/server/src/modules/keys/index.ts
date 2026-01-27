@@ -62,9 +62,13 @@ export const keysRoutes = new Elysia({ prefix: "/api/keys" })
       body: KeyModel.createBody,
     }
   )
-  .get("/", async ({ set }) => {
+  .get("/", async ({ organization, set, user }) => {
+    if (!user) {
+      set.status = 401;
+      return { message: "Unauthorized" };
+    }
     try {
-      const keys = await KeyService.list();
+      const keys = await KeyService.list(organization?.id ?? user.id);
       return keys.map(formatKeyResponse);
     } catch (error) {
       set.status = 500;

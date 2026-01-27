@@ -141,7 +141,7 @@ export const KeyService = {
     };
   },
 
-  list() {
+  list(organizationId: string) {
     return db
       .select({
         createdAt: apiKeys.createdAt,
@@ -154,6 +154,7 @@ export const KeyService = {
         updatedAt: apiKeys.updatedAt,
       })
       .from(apiKeys)
+      .where(eq(apiKeys.organizationId, organizationId))
       .orderBy(desc(apiKeys.createdAt));
   },
 

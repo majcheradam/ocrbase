@@ -21,11 +21,20 @@ export const apiKeyPlugin = new Elysia({ name: "api-key" })
     }> => {
       const authHeader = request.headers.get("authorization");
 
-      if (!authHeader?.startsWith("Bearer ")) {
+      if (!authHeader) {
         return { apiKey: null, apiKeyAuth: false };
       }
 
-      const token = authHeader.slice(7);
+      const [scheme, ...rest] = authHeader.split(" ");
+      if (scheme?.toLowerCase() !== "bearer") {
+        return { apiKey: null, apiKeyAuth: false };
+      }
+
+      const token = rest.join(" ").trim();
+      if (!token) {
+        return { apiKey: null, apiKeyAuth: false };
+      }
+
       const keyHash = await hashApiKey(token);
 
       const [foundKey] = await db

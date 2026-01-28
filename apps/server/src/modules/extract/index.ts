@@ -14,10 +14,12 @@ export const extractRoutes = new Elysia({ prefix: "/api/extract" })
     {
       body: t.Object({
         file: t.Optional(t.File()),
-        llmModel: t.Optional(t.String()),
-        llmProvider: t.Optional(t.String()),
         schemaId: t.String(),
         url: t.Optional(t.String()),
       }),
+      detail: {
+        description: "Extract structured data from a document using a schema",
+        tags: ["Extract"],
+      },
     }
   );

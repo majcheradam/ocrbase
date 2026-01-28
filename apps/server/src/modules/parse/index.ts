@@ -14,9 +14,11 @@ export const parseRoutes = new Elysia({ prefix: "/api/parse" })
     {
       body: t.Object({
         file: t.Optional(t.File()),
-        llmModel: t.Optional(t.String()),
-        llmProvider: t.Optional(t.String()),
         url: t.Optional(t.String()),
       }),
+      detail: {
+        description: "Parse a document (file or URL) to markdown using OCR",
+        tags: ["Parse"],
+      },
     }
   );

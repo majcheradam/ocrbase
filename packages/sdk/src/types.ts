@@ -63,8 +63,6 @@ export interface JobResponse {
   mimeType: string;
   sourceUrl: string | null;
   schemaId: string | null;
-  llmProvider: string | null;
-  llmModel: string | null;
   markdownResult: string | null;
   jsonResult?: unknown;
   pageCount: number | null;
@@ -102,13 +100,15 @@ export interface ListJobsQuery {
   sortOrder?: "asc" | "desc";
 }
 
-export interface CreateJobInput {
+export interface ParseInput {
   file?: File;
   url?: string;
-  type: JobType;
-  schemaId?: string;
-  llmProvider?: string;
-  llmModel?: string;
+}
+
+export interface ExtractInput {
+  file?: File;
+  url?: string;
+  schemaId: string;
 }
 
 export interface SchemaResponse {

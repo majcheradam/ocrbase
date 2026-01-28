@@ -44,8 +44,6 @@ const create = async (input: CreateJobInput): Promise<Job> => {
       fileKey: "",
       fileName: file.name,
       fileSize: file.size,
-      llmModel: body.llmModel,
-      llmProvider: body.llmProvider,
       mimeType: file.type,
       organizationId,
       schemaId: body.schemaId,

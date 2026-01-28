@@ -2,33 +2,10 @@ import { Elysia, t } from "elysia";
 
 import { requireAuth } from "../../plugins/auth";
 import { JobService } from "./service";
-import {
-  createJobHandler,
-  formatJobResponse,
-  getErrorMessage,
-  getWideEvent,
-} from "./shared";
+import { formatJobResponse, getErrorMessage, getWideEvent } from "./shared";
 
 export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
   .use(requireAuth)
-  .post(
-    "/",
-    (ctx) => {
-      const { body } = ctx;
-      const wideEvent = getWideEvent(ctx);
-      return createJobHandler(ctx, wideEvent, { type: body.type });
-    },
-    {
-      body: t.Object({
-        file: t.Optional(t.File()),
-        llmModel: t.Optional(t.String()),
-        llmProvider: t.Optional(t.String()),
-        schemaId: t.Optional(t.String()),
-        type: t.Union([t.Literal("parse"), t.Literal("extract")]),
-        url: t.Optional(t.String()),
-      }),
-    }
-  )
   .get(
     "/",
     async ({ organization, query, set, user }) => {
@@ -57,6 +34,10 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
       }
     },
     {
+      detail: {
+        description: "List jobs with filtering, sorting, and pagination",
+        tags: ["Jobs"],
+      },
       query: t.Object({
         limit: t.Optional(t.Numeric({ default: 20, maximum: 100, minimum: 1 })),
         page: t.Optional(t.Numeric({ default: 1, minimum: 1 })),
@@ -114,6 +95,10 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
       }
     },
     {
+      detail: {
+        description: "Get job details and status",
+        tags: ["Jobs"],
+      },
       params: t.Object({
         id: t.String(),
       }),
@@ -153,6 +138,10 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
       }
     },
     {
+      detail: {
+        description: "Delete a job and its associated data",
+        tags: ["Jobs"],
+      },
       params: t.Object({
         id: t.String(),
       }),
@@ -194,6 +183,10 @@ export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
       }
     },
     {
+      detail: {
+        description: "Download job result as markdown or JSON",
+        tags: ["Jobs"],
+      },
       params: t.Object({
         id: t.String(),
       }),

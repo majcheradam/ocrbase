@@ -1,10 +1,5 @@
 import type { EdenClient } from "../client";
-import type {
-  CreateJobInput,
-  JobResponse,
-  ListJobsQuery,
-  ListJobsResponse,
-} from "../types";
+import type { JobResponse, ListJobsQuery, ListJobsResponse } from "../types";
 
 import { SDKError } from "../errors";
 
@@ -13,8 +8,6 @@ export interface JobsClient {
   list: (query?: ListJobsQuery) => Promise<ListJobsResponse>;
   /** Get a single job by ID */
   get: (id: string) => Promise<JobResponse>;
-  /** Create a new job from file or URL */
-  create: (input: CreateJobInput) => Promise<JobResponse>;
   /** Delete a job by ID */
   delete: (id: string) => Promise<{ message: string }>;
   /** Download job result as markdown or JSON */
@@ -22,23 +15,6 @@ export interface JobsClient {
 }
 
 export const createJobsClient = (eden: EdenClient): JobsClient => ({
-  create: async (input) => {
-    const { data, error } = await eden.api.jobs.post({
-      file: input.file,
-      llmModel: input.llmModel,
-      llmProvider: input.llmProvider,
-      schemaId: input.schemaId,
-      type: input.type,
-      url: input.url,
-    });
-
-    if (error) {
-      throw SDKError.fromEdenError(error);
-    }
-
-    return data as JobResponse;
-  },
-
   delete: async (id) => {
     const { data, error } = await eden.api.jobs({ id }).delete();
 

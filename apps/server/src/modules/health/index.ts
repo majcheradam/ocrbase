@@ -47,29 +47,43 @@ const determineOverallStatus = (
 };
 
 export const healthRoutes = new Elysia({ prefix: "/health" })
-  .get("/live", () => ({ status: "ok" }))
-  .get("/ready", async (): Promise<HealthResponse> => {
-    const [database, redis, storage, ocr, llm] = await Promise.all([
-      checkDatabaseHealth(),
-      checkQueueHealth(),
-      checkStorageHealth(),
-      checkOcrHealth(),
-      checkLlmHealth(),
-    ]);
+  .get("/live", () => ({ status: "ok" }), {
+    detail: {
+      description: "Liveness probe for container orchestration",
+      tags: ["Health"],
+    },
+  })
+  .get(
+    "/ready",
+    async (): Promise<HealthResponse> => {
+      const [database, redis, storage, ocr, llm] = await Promise.all([
+        checkDatabaseHealth(),
+        checkQueueHealth(),
+        checkStorageHealth(),
+        checkOcrHealth(),
+        checkLlmHealth(),
+      ]);
 
-    const checks: HealthCheck = {
-      database,
-      llm,
-      ocr,
-      redis,
-      storage,
-    };
+      const checks: HealthCheck = {
+        database,
+        llm,
+        ocr,
+        redis,
+        storage,
+      };
 
-    const status = determineOverallStatus(checks);
+      const status = determineOverallStatus(checks);
 
-    return {
-      checks,
-      status,
-      timestamp: new Date().toISOString(),
-    };
-  });
+      return {
+        checks,
+        status,
+        timestamp: new Date().toISOString(),
+      };
+    },
+    {
+      detail: {
+        description: "Readiness probe with dependency health checks",
+        tags: ["Health"],
+      },
+    }
+  );

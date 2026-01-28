@@ -12,8 +12,6 @@ const DEFAULT_MODEL = "google/gemini-2.5-flash-preview";
 interface ProcessExtractionOptions {
   markdown: string;
   schema?: Record<string, unknown>;
-  provider?: string;
-  model?: string;
 }
 
 interface GenerateSchemaOptions {
@@ -108,7 +106,6 @@ ${markdown}`;
   async processExtraction({
     markdown,
     schema,
-    model = DEFAULT_MODEL,
   }: ProcessExtractionOptions): Promise<Record<string, unknown>> {
     if (!env.OPENROUTER_API_KEY) {
       throw new Error("OPENROUTER_API_KEY is not configured");
@@ -129,7 +126,7 @@ ${markdown}`
 ${markdown}`;
 
     const result = await generateText({
-      model: openrouter(model),
+      model: openrouter(DEFAULT_MODEL),
       prompt: userPrompt,
       system: systemPrompt,
     });

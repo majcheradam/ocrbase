@@ -68,6 +68,10 @@ export const schemasRoutes = new Elysia({ prefix: "/api/schemas" })
     },
     {
       body: SchemaModel.createBody,
+      detail: {
+        description: "Create a new extraction schema",
+        tags: ["Schemas"],
+      },
     }
   )
   .get(
@@ -86,7 +90,12 @@ export const schemasRoutes = new Elysia({ prefix: "/api/schemas" })
         return { message: getErrorMessage(error, "Failed to list schemas") };
       }
     },
-    {}
+    {
+      detail: {
+        description: "List all extraction schemas",
+        tags: ["Schemas"],
+      },
+    }
   )
   .get(
     "/:id",
@@ -115,6 +124,10 @@ export const schemasRoutes = new Elysia({ prefix: "/api/schemas" })
       }
     },
     {
+      detail: {
+        description: "Get schema details",
+        tags: ["Schemas"],
+      },
       params: t.Object({
         id: t.String(),
       }),
@@ -149,7 +162,10 @@ export const schemasRoutes = new Elysia({ prefix: "/api/schemas" })
     },
     {
       body: SchemaModel.updateBody,
-
+      detail: {
+        description: "Update a schema",
+        tags: ["Schemas"],
+      },
       params: t.Object({
         id: t.String(),
       }),
@@ -182,6 +198,10 @@ export const schemasRoutes = new Elysia({ prefix: "/api/schemas" })
       }
     },
     {
+      detail: {
+        description: "Delete a schema",
+        tags: ["Schemas"],
+      },
       params: t.Object({
         id: t.String(),
       }),
@@ -249,5 +269,9 @@ export const schemasRoutes = new Elysia({ prefix: "/api/schemas" })
     },
     {
       body: SchemaModel.generateBody,
+      detail: {
+        description: "Generate a schema from a parsed document using AI",
+        tags: ["Schemas"],
+      },
     }
   );

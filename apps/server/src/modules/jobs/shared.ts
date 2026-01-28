@@ -22,8 +22,6 @@ export const formatJobResponse = (job: Job): JobResponse => ({
   fileSize: job.fileSize,
   id: job.id,
   jsonResult: job.jsonResult ?? undefined,
-  llmModel: job.llmModel,
-  llmProvider: job.llmProvider,
   markdownResult: job.markdownResult,
   mimeType: job.mimeType,
   organizationId: job.organizationId,
@@ -51,8 +49,6 @@ export const createJobHandler = async <
   T extends {
     body: {
       file?: File;
-      llmModel?: string;
-      llmProvider?: string;
       schemaId?: string;
       url?: string;
     };
@@ -81,8 +77,6 @@ export const createJobHandler = async <
     if (hasValidUrl && body.url) {
       const job = await JobService.createFromUrl({
         body: {
-          llmModel: body.llmModel,
-          llmProvider: body.llmProvider,
           schemaId: body.schemaId,
           type: options.type,
           url: body.url,
@@ -111,8 +105,6 @@ export const createJobHandler = async <
 
     const job = await JobService.create({
       body: {
-        llmModel: body.llmModel,
-        llmProvider: body.llmProvider,
         schemaId: body.schemaId,
         type: options.type,
       },

@@ -6,12 +6,7 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 
-import type {
-  CreateJobInput,
-  JobResponse,
-  ListJobsQuery,
-  ListJobsResponse,
-} from "../../types";
+import type { JobResponse, ListJobsQuery, ListJobsResponse } from "../../types";
 
 import { useOCRBaseClient } from "../provider";
 
@@ -41,22 +36,6 @@ export const useJob = (id: string): UseQueryResult<JobResponse> => {
     enabled: Boolean(id),
     queryFn: () => client.jobs.get(id),
     queryKey: jobKeys.detail(id),
-  });
-};
-
-export const useCreateJob = (): UseMutationResult<
-  JobResponse,
-  Error,
-  CreateJobInput
-> => {
-  const client = useOCRBaseClient();
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (input) => client.jobs.create(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: jobKeys.lists() });
-    },
   });
 };
 

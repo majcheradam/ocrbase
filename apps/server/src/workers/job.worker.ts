@@ -16,8 +16,6 @@ const runExtraction = async (
   jobId: string,
   markdown: string,
   schema: Record<string, unknown> | undefined,
-  llmModel: string | null,
-  llmProvider: string | null,
   pageCount: number,
   startTime: number
 ): Promise<void> => {
@@ -25,8 +23,6 @@ const runExtraction = async (
 
   const jsonResult = await llmService.processExtraction({
     markdown,
-    model: llmModel ?? undefined,
-    provider: llmProvider ?? undefined,
     schema,
   });
 
@@ -96,15 +92,7 @@ const processJob = async (bullJob: BullJob<JobData>): Promise<void> => {
       const schema = job.schema?.jsonSchema as
         | Record<string, unknown>
         | undefined;
-      await runExtraction(
-        jobId,
-        markdown,
-        schema,
-        job.llmModel,
-        job.llmProvider,
-        pageCount,
-        startTime
-      );
+      await runExtraction(jobId, markdown, schema, pageCount, startTime);
     } else {
       await finishParseJob(jobId, markdown, pageCount, startTime);
     }

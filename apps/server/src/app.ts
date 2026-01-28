@@ -1,9 +1,11 @@
 import { cors } from "@elysiajs/cors";
-import { openapi } from "@elysiajs/openapi";
+import { openapi, fromTypes } from "@elysiajs/openapi";
 import { auth } from "@ocrbase/auth";
 import { env } from "@ocrbase/env/server";
 import { Elysia } from "elysia";
+import path from "node:path";
 
+import { authRoutes } from "./modules/auth";
 import { extractRoutes } from "./modules/extract";
 import { healthRoutes } from "./modules/health";
 import { jobsRoutes } from "./modules/jobs";
@@ -29,6 +31,7 @@ export const app = new Elysia()
         tags: [
           { description: "Health check endpoints", name: "Health" },
           { description: "Authentication endpoints", name: "Auth" },
+          { description: "Organization management", name: "Organization" },
           { description: "Document parsing (OCR to markdown)", name: "Parse" },
           { description: "Structured data extraction", name: "Extract" },
           { description: "OCR job management", name: "Jobs" },
@@ -37,6 +40,12 @@ export const app = new Elysia()
         ],
       },
       path: "/openapi",
+      references: fromTypes(
+        env.NODE_ENV === "production" ? "dist/src/index.d.ts" : "src/index.ts",
+        {
+          projectRoot: path.resolve(import.meta.dir, ".."),
+        }
+      ),
     })
   )
   .use(
@@ -51,7 +60,10 @@ export const app = new Elysia()
   .use(wideEventPlugin)
   .use(rateLimitPlugin)
   .use(errorHandlerPlugin)
-  .all("/api/auth/*", (context) => auth.handler(context.request))
+  .use(authRoutes)
+  .all("/api/auth/*", (context) => auth.handler(context.request), {
+    detail: { hide: true },
+  })
   .use(healthRoutes)
   .use(parseRoutes)
   .use(extractRoutes)

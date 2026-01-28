@@ -60,17 +60,30 @@ export const keysRoutes = new Elysia({ prefix: "/api/keys" })
     },
     {
       body: KeyModel.createBody,
+      detail: {
+        description: "Create a new API key",
+        tags: ["Keys"],
+      },
     }
   )
-  .get("/", async ({ set }) => {
-    try {
-      const keys = await KeyService.list();
-      return keys.map(formatKeyResponse);
-    } catch (error) {
-      set.status = 500;
-      return { message: getErrorMessage(error, "Failed to list API keys") };
+  .get(
+    "/",
+    async ({ set }) => {
+      try {
+        const keys = await KeyService.list();
+        return keys.map(formatKeyResponse);
+      } catch (error) {
+        set.status = 500;
+        return { message: getErrorMessage(error, "Failed to list API keys") };
+      }
+    },
+    {
+      detail: {
+        description: "List all API keys",
+        tags: ["Keys"],
+      },
     }
-  })
+  )
   .get(
     "/:id",
     async ({ params, set }) => {
@@ -109,6 +122,10 @@ export const keysRoutes = new Elysia({ prefix: "/api/keys" })
       }
     },
     {
+      detail: {
+        description: "Get API key details and usage statistics",
+        tags: ["Keys"],
+      },
       params: t.Object({
         id: t.String(),
       }),
@@ -132,6 +149,10 @@ export const keysRoutes = new Elysia({ prefix: "/api/keys" })
       }
     },
     {
+      detail: {
+        description: "Revoke an API key (disable without deleting)",
+        tags: ["Keys"],
+      },
       params: t.Object({
         id: t.String(),
       }),
@@ -155,6 +176,10 @@ export const keysRoutes = new Elysia({ prefix: "/api/keys" })
       }
     },
     {
+      detail: {
+        description: "Permanently delete an API key",
+        tags: ["Keys"],
+      },
       params: t.Object({
         id: t.String(),
       }),

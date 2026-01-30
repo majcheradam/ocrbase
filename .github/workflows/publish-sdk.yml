@@ -35,7 +35,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Build SDK
-        run: bun run --filter @ocrbase/sdk build
+        run: bun run --filter ocrbase build
 
       - name: Prepare package for publishing
         run: |

@@ -49,6 +49,10 @@ const app = new Elysia()
           title: "ocrbase API",
           version: "1.0.0",
         },
+        servers: [
+          { description: "Production", url: "https://api.ocrbase.dev" },
+          { description: "Local development", url: "http://localhost:3000" },
+        ],
         tags: [
           { description: "Health check endpoints", name: "Health" },
           { description: "Authentication endpoints", name: "Auth" },

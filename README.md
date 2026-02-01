@@ -21,7 +21,7 @@ npm install ocrbase
 import { createClient } from "ocrbase";
 
 const { parse, extract } = createClient({
-  baseUrl: "https://your-instance.com",
+  baseUrl: "https://api.ocrbase.dev",
   apiKey: "ak_xxx",
 });
 

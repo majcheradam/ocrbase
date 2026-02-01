@@ -20,6 +20,11 @@ COPY . .
 
 # Build the server binary and generate OpenAPI spec
 WORKDIR /app/apps/server
+# Dummy env vars for build-time OpenAPI generation (not used at runtime)
+ENV BETTER_AUTH_SECRET=build-time-dummy-secret-at-least-32-chars \
+    BETTER_AUTH_URL=http://localhost:3000 \
+    CORS_ORIGINS=http://localhost:3000 \
+    DATABASE_URL=postgresql://x:x@localhost/x
 RUN mkdir -p dist && bun run ./scripts/generate-openapi.ts && bun run compile
 
 # Production stage - minimal distroless image

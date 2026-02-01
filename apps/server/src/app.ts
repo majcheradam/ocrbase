@@ -3,6 +3,7 @@ import { openapi, fromTypes } from "@elysiajs/openapi";
 import { auth } from "@ocrbase/auth";
 import { env } from "@ocrbase/env/server";
 import { Elysia } from "elysia";
+import fs from "node:fs";
 import path from "node:path";
 
 import { authRoutes } from "./modules/auth";
@@ -21,16 +22,15 @@ import { rateLimitPlugin } from "./plugins/rateLimit";
 import { securityPlugin } from "./plugins/security";
 import { wideEventPlugin } from "./plugins/wide-event";
 
-// Load pre-generated OpenAPI spec in production
-const loadStaticOpenApiSpec = async () => {
+// Load pre-generated OpenAPI spec in production (sync for compile compatibility)
+const loadStaticOpenApiSpec = (): object | null => {
   if (env.NODE_ENV !== "production") {
     return null;
   }
   try {
-    const file = Bun.file(
-      path.resolve(import.meta.dir, "../dist/openapi.json")
-    );
-    return await file.json();
+    const specPath = path.resolve(import.meta.dir, "../dist/openapi.json");
+    const content = fs.readFileSync(specPath, "utf8");
+    return JSON.parse(content);
   } catch {
     console.warn(
       "Pre-generated OpenAPI spec not found, falling back to dynamic generation"
@@ -39,7 +39,7 @@ const loadStaticOpenApiSpec = async () => {
   }
 };
 
-const staticSpec = await loadStaticOpenApiSpec();
+const staticSpec = loadStaticOpenApiSpec();
 
 // Static OpenAPI plugin for production (serves cached spec + Scalar UI)
 const staticOpenApi = (spec: object) => {

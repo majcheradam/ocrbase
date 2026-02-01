@@ -13,6 +13,7 @@ const startServer = (): void => {
 };
 
 const shutdown = async () => {
+  await app.stop();
   await shutdownPosthog();
   process.exit(0);
 };

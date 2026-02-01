@@ -13,7 +13,9 @@ npm install ocrbase
 ```typescript
 import { createClient } from "ocrbase";
 
-const { parse, extract } = createClient({ apiKey: "ak_xxx" });
+const { parse, extract } = createClient({
+  apiKey: process.env.OCRBASE_API_KEY, // sk_xxx
+});
 
 // Parse document to markdown
 const job = await parse({ file: document });
@@ -32,7 +34,7 @@ console.log(job.jsonResult);
 ### Parse - Document to Markdown
 
 ```typescript
-const { parse } = createClient({ apiKey });
+const { parse } = createClient({ apiKey: process.env.OCRBASE_API_KEY });
 
 // From file
 const job = await parse({ file: myFile });
@@ -49,7 +51,7 @@ job.markdownResult; // "# Document Title\n\nContent..."
 ### Extract - Document to Structured Data
 
 ```typescript
-const { extract } = createClient({ apiKey });
+const { extract } = createClient({ apiKey: process.env.OCRBASE_API_KEY });
 
 // With hints (schema-free extraction)
 const job = await extract({
@@ -70,7 +72,7 @@ job.jsonResult; // { invoiceNumber: "INV-001", total: 1234.56, ... }
 ### Jobs - Manage Processing Jobs
 
 ```typescript
-const { jobs } = createClient({ apiKey });
+const { jobs } = createClient({ apiKey: process.env.OCRBASE_API_KEY });
 
 // List jobs
 const { data, pagination } = await jobs.list({
@@ -93,7 +95,7 @@ await jobs.delete("job_abc123");
 ### Schemas - Manage Extraction Schemas
 
 ```typescript
-const { schemas } = createClient({ apiKey });
+const { schemas } = createClient({ apiKey: process.env.OCRBASE_API_KEY });
 
 // List schemas
 const list = await schemas.list();
@@ -121,7 +123,7 @@ const generated = await schemas.generate({
 ### WebSocket - Real-time Job Updates
 
 ```typescript
-const { ws } = createClient({ apiKey });
+const { ws } = createClient({ apiKey: process.env.OCRBASE_API_KEY });
 
 const unsubscribe = ws.subscribeToJob("job_abc123", {
   onStatus: (status) => console.log("Status:", status),
@@ -152,7 +154,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <OCRBaseProvider config={{ apiKey: "ak_xxx" }}>
+      <OCRBaseProvider config={{ apiKey: process.env.OCRBASE_API_KEY }}>
         <YourApp />
       </OCRBaseProvider>
     </QueryClientProvider>
@@ -316,7 +318,7 @@ try {
 ```typescript
 const client = createClient({
   // Required
-  apiKey: "ak_xxx",
+  apiKey: process.env.OCRBASE_API_KEY, // sk_xxx
 
   // Optional: custom base URL (default: https://api.ocrbase.dev)
   // baseUrl: "https://your-instance.com",

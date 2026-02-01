@@ -15,16 +15,35 @@ export interface JobUpdateMessage {
   };
 }
 
-const getRedisUrl = (): string => env.REDIS_URL ?? "redis://localhost:6379";
+const getRedisUrl = (): string | null => env.REDIS_URL ?? null;
 
-const createRedisClient = (): Redis =>
-  new Redis(getRedisUrl(), {
+const createRedisClient = (): Redis | null => {
+  const url = getRedisUrl();
+  if (!url) {
+    return null;
+  }
+  return new Redis(url, {
     enableReadyCheck: false,
     maxRetriesPerRequest: null,
   });
+};
 
-const publisher = createRedisClient();
-const subscriber = createRedisClient();
+let publisher: Redis | null = null;
+let subscriber: Redis | null = null;
+
+const getPublisher = (): Redis | null => {
+  if (!publisher) {
+    publisher = createRedisClient();
+  }
+  return publisher;
+};
+
+const getSubscriber = (): Redis | null => {
+  if (!subscriber) {
+    subscriber = createRedisClient();
+  }
+  return subscriber;
+};
 
 const subscriptions = new Map<
   string,
@@ -37,19 +56,29 @@ export const publishJobUpdate = async (
   jobId: string,
   message: JobUpdateMessage
 ): Promise<void> => {
+  const pub = getPublisher();
+  if (!pub) {
+    return;
+  }
   const channel = getChannelName(jobId);
-  await publisher.publish(channel, JSON.stringify(message));
+  await pub.publish(channel, JSON.stringify(message));
 };
 
 export const subscribeToJob = (
   jobId: string,
   handler: (message: JobUpdateMessage) => void
 ): void => {
+  const sub = getSubscriber();
+  if (!sub) {
+    return;
+  }
+
+  initializeMessageHandler();
   const channel = getChannelName(jobId);
 
   if (!subscriptions.has(channel)) {
     subscriptions.set(channel, new Set());
-    subscriber.subscribe(channel);
+    sub.subscribe(channel);
   }
 
   subscriptions.get(channel)?.add(handler);
@@ -67,13 +96,24 @@ export const unsubscribeFromJob = (
 
     if (handlers.size === 0) {
       subscriptions.delete(channel);
-      subscriber.unsubscribe(channel);
+      subscriber?.unsubscribe(channel);
     }
   }
 };
 
+let messageHandlerInitialized = false;
+
 const initializeMessageHandler = (): void => {
-  subscriber.on("message", (channel, messageStr) => {
+  if (messageHandlerInitialized) {
+    return;
+  }
+  const sub = getSubscriber();
+  if (!sub) {
+    return;
+  }
+  messageHandlerInitialized = true;
+
+  sub.on("message", (channel, messageStr) => {
     const handlers = subscriptions.get(channel);
 
     if (handlers) {
@@ -90,9 +130,14 @@ const initializeMessageHandler = (): void => {
   });
 };
 
-initializeMessageHandler();
-
 export const closeWebSocketConnections = async (): Promise<void> => {
   subscriptions.clear();
-  await Promise.all([publisher.quit(), subscriber.quit()]);
+  const promises: Promise<string>[] = [];
+  if (publisher) {
+    promises.push(publisher.quit());
+  }
+  if (subscriber) {
+    promises.push(subscriber.quit());
+  }
+  await Promise.all(promises);
 };

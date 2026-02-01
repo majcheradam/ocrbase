@@ -20,10 +20,7 @@ npm install ocrbase
 ```typescript
 import { createClient } from "ocrbase";
 
-const { parse, extract } = createClient({
-  baseUrl: "https://api.ocrbase.dev",
-  apiKey: "ak_xxx",
-});
+const { parse, extract } = createClient({ apiKey: "ak_xxx" });
 
 // Parse document to markdown
 const job = await parse({ file: document });

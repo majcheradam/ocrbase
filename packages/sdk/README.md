@@ -13,10 +13,7 @@ npm install ocrbase
 ```typescript
 import { createClient } from "ocrbase";
 
-const { parse, extract } = createClient({
-  baseUrl: "https://api.ocrbase.dev",
-  apiKey: "ak_xxx",
-});
+const { parse, extract } = createClient({ apiKey: "ak_xxx" });
 
 // Parse document to markdown
 const job = await parse({ file: document });
@@ -35,7 +32,7 @@ console.log(job.jsonResult);
 ### Parse - Document to Markdown
 
 ```typescript
-const { parse } = createClient({ baseUrl, apiKey });
+const { parse } = createClient({ apiKey });
 
 // From file
 const job = await parse({ file: myFile });
@@ -52,7 +49,7 @@ job.markdownResult; // "# Document Title\n\nContent..."
 ### Extract - Document to Structured Data
 
 ```typescript
-const { extract } = createClient({ baseUrl, apiKey });
+const { extract } = createClient({ apiKey });
 
 // With hints (schema-free extraction)
 const job = await extract({
@@ -73,7 +70,7 @@ job.jsonResult; // { invoiceNumber: "INV-001", total: 1234.56, ... }
 ### Jobs - Manage Processing Jobs
 
 ```typescript
-const { jobs } = createClient({ baseUrl, apiKey });
+const { jobs } = createClient({ apiKey });
 
 // List jobs
 const { data, pagination } = await jobs.list({
@@ -96,7 +93,7 @@ await jobs.delete("job_abc123");
 ### Schemas - Manage Extraction Schemas
 
 ```typescript
-const { schemas } = createClient({ baseUrl, apiKey });
+const { schemas } = createClient({ apiKey });
 
 // List schemas
 const list = await schemas.list();
@@ -124,7 +121,7 @@ const generated = await schemas.generate({
 ### WebSocket - Real-time Job Updates
 
 ```typescript
-const { ws } = createClient({ baseUrl, apiKey });
+const { ws } = createClient({ apiKey });
 
 const unsubscribe = ws.subscribeToJob("job_abc123", {
   onStatus: (status) => console.log("Status:", status),
@@ -155,12 +152,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <OCRBaseProvider
-        config={{
-          baseUrl: "https://api.ocrbase.dev",
-          apiKey: "ak_xxx",
-        }}
-      >
+      <OCRBaseProvider config={{ apiKey: "ak_xxx" }}>
         <YourApp />
       </OCRBaseProvider>
     </QueryClientProvider>
@@ -324,10 +316,10 @@ try {
 ```typescript
 const client = createClient({
   // Required
-  baseUrl: "https://api.ocrbase.dev",
-
-  // API key authentication
   apiKey: "ak_xxx",
+
+  // Optional: custom base URL (default: https://api.ocrbase.dev)
+  // baseUrl: "https://your-instance.com",
 
   // Or custom headers
   headers: {

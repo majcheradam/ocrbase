@@ -9,7 +9,10 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string().min(32),
     BETTER_AUTH_URL: z.url(),
     COMMIT_SHA: z.string().optional(),
-    CORS_ORIGIN: z.url(),
+    CORS_ORIGINS: z
+      .string()
+      .transform((s) => s.split(",").map((o) => o.trim()))
+      .pipe(z.array(z.url())),
     DATABASE_URL: z.url(),
     DEPLOYMENT_ID: z.string().optional(),
     GITHUB_CLIENT_ID: z.string().optional(),

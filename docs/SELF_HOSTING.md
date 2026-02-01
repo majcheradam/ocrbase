@@ -83,7 +83,7 @@ Create a `.env` file in the root directory:
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ocrbase
 BETTER_AUTH_SECRET=your-secret-key-at-least-32-characters-long
 BETTER_AUTH_URL=http://localhost:3000
-CORS_ORIGIN=http://localhost:3001
+CORS_ORIGINS=http://localhost:3001
 
 # Redis
 REDIS_URL=redis://localhost:6379

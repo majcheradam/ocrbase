@@ -121,7 +121,7 @@ export const app = new Elysia()
       allowedHeaders: ["Content-Type", "Authorization"],
       credentials: true,
       methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      origin: env.CORS_ORIGIN,
+      origin: env.CORS_ORIGINS,
     })
   )
   .use(securityPlugin)

@@ -26,8 +26,8 @@ export type OnResponseHook = (
  * Configuration for the ocrbase SDK client.
  */
 export interface SDKConfig {
-  /** Base URL of the ocrbase API server */
-  baseUrl: string;
+  /** Base URL of the ocrbase API server (default: https://api.ocrbase.dev) */
+  baseUrl?: string;
 
   /** API key for authentication (recommended) */
   apiKey?: string;

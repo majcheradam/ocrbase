@@ -83,10 +83,13 @@ const mergeHeaders = (
   return { ...authHeader, ...(existing as Record<string, string>) };
 };
 
+const DEFAULT_BASE_URL = "https://api.ocrbase.dev";
+
 export const createClient = (config: SDKConfig): OCRBaseClient => {
+  const baseUrl = config.baseUrl ?? DEFAULT_BASE_URL;
   const headers = mergeHeaders(config.headers, config.apiKey);
 
-  const eden = treaty<App>(config.baseUrl, {
+  const eden = treaty<App>(baseUrl, {
     fetch: {
       credentials: config.credentials ?? "include",
     },

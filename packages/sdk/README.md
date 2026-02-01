@@ -14,7 +14,7 @@ npm install ocrbase
 import { createClient } from "ocrbase";
 
 const { parse, extract } = createClient({
-  baseUrl: "https://api.ocrbase.com",
+  baseUrl: "https://api.ocrbase.dev",
   apiKey: "ak_xxx",
 });
 
@@ -157,7 +157,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <OCRBaseProvider
         config={{
-          baseUrl: "https://api.ocrbase.com",
+          baseUrl: "https://api.ocrbase.dev",
           apiKey: "ak_xxx",
         }}
       >
@@ -324,7 +324,7 @@ try {
 ```typescript
 const client = createClient({
   // Required
-  baseUrl: "https://api.ocrbase.com",
+  baseUrl: "https://api.ocrbase.dev",
 
   // API key authentication
   apiKey: "ak_xxx",

@@ -10,7 +10,7 @@ import {
 import { type WorkerJobContext, workerLogger } from "../lib/worker-logger";
 import { llmService } from "../services/llm";
 import { parseDocument } from "../services/ocr";
-import { type JobData, connection } from "../services/queue";
+import { type JobData, getWorkerConnection } from "../services/queue";
 import { StorageService } from "../services/storage";
 
 const runExtraction = async (
@@ -169,7 +169,7 @@ const processJob = async (bullJob: BullJob<JobData>): Promise<void> => {
 
 const worker = new Worker<JobData>("ocr-jobs", processJob, {
   concurrency: 5,
-  connection,
+  connection: getWorkerConnection(),
 });
 
 worker.on("failed", async (job, error) => {

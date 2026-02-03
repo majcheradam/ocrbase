@@ -2,8 +2,6 @@
 
 Turn PDFs into structured data at scale. Powered by frontier open-weight OCR models with a type-safe TypeScript SDK.
 
-> **API URL:** `https://api.ocrbase.dev` (default, no configuration needed)
-
 ## Features
 
 - **Best-in-class OCR** - PaddleOCR-VL-0.9B for accurate text extraction
@@ -79,35 +77,6 @@ function DocumentParser() {
 **Best practice:** Parse documents with ocrbase before sending to LLMs. Raw PDF binary wastes tokens and produces poor results.
 
 **Pattern:** Parse on client with WebSocket → send markdown to your API → call LLM.
-
-```tsx
-// Client: parse and send to your API
-const { status, job } = useJobSubscription(jobId);
-
-if (status === "completed") {
-  const res = await fetch("/api/analyze", {
-    method: "POST",
-    body: JSON.stringify({ markdown: job.markdownResult }),
-  });
-}
-```
-
-```typescript
-// Server API route: call OpenAI/OpenRouter/etc
-import OpenAI from "openai";
-
-export async function POST(req: Request) {
-  const { markdown } = await req.json();
-
-  const openai = new OpenAI();
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o",
-    messages: [{ role: "user", content: `Summarize:\n\n${markdown}` }],
-  });
-
-  return Response.json({ result: response.choices[0].message.content });
-}
-```
 
 See [SDK documentation](./packages/sdk/README.md) for React hooks and advanced usage.
 

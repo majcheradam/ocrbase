@@ -34,16 +34,30 @@ const loadStaticOpenApiSpec = (): object | null => {
   if (env.NODE_ENV !== "production") {
     return null;
   }
-  try {
-    const specPath = path.resolve(import.meta.dir, "../dist/openapi.json");
-    const content = fs.readFileSync(specPath, "utf8");
-    return JSON.parse(content);
-  } catch {
-    console.warn(
-      "Pre-generated OpenAPI spec not found, falling back to dynamic generation"
-    );
-    return null;
+
+  // Try multiple paths for compatibility with different deployment scenarios:
+  // 1. Docker production (/app/dist/)
+  // 2. Development build (relative to src)
+  // 3. CWD-relative
+  const possiblePaths = [
+    "/app/dist/openapi.json",
+    path.resolve(import.meta.dir, "../dist/openapi.json"),
+    path.resolve(process.cwd(), "dist/openapi.json"),
+  ];
+
+  for (const specPath of possiblePaths) {
+    try {
+      const content = fs.readFileSync(specPath, "utf8");
+      return JSON.parse(content);
+    } catch {
+      // Try next path
+    }
   }
+
+  console.warn(
+    "Pre-generated OpenAPI spec not found, falling back to dynamic generation"
+  );
+  return null;
 };
 
 const staticSpec = loadStaticOpenApiSpec();

@@ -32,10 +32,13 @@ FROM gcr.io/distroless/base-debian12:nonroot
 
 WORKDIR /app
 
+# Set production environment
+ENV NODE_ENV=production
+
 # Copy the compiled binaries and pre-generated OpenAPI spec
 COPY --from=builder /app/apps/server/server /app/server
 COPY --from=builder /app/apps/server/worker /app/worker
-COPY --from=builder /app/apps/server/dist/openapi.json /app/apps/server/dist/openapi.json
+COPY --from=builder /app/apps/server/dist/openapi.json /app/dist/openapi.json
 
 # Expose port
 EXPOSE 3000

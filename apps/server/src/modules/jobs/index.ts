@@ -5,7 +5,7 @@ import { requireAuth } from "@/plugins/auth";
 import { JobService } from "./service";
 import { formatJobResponse, getErrorMessage, getWideEvent } from "./shared";
 
-export const jobsRoutes = new Elysia({ prefix: "/api/jobs" })
+export const jobsRoutes = new Elysia({ prefix: "/v1/jobs" })
   .use(requireAuth)
   .get(
     "/",

@@ -6,7 +6,7 @@ import { Elysia } from "elysia";
  * Actual requests are handled by Better Auth via .mount(auth.handler).
  * No body validation here to avoid conflicts with Better Auth's body parsing.
  */
-export const authRoutes = new Elysia({ prefix: "/api/auth" })
+export const authRoutes = new Elysia({ prefix: "/v1/auth" })
   // ============== Authentication ==============
   .post("/sign-up/email", ({ request }) => auth.handler(request), {
     detail: {

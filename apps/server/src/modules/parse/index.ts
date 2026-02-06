@@ -4,7 +4,7 @@ import { ExampleUrls, FileConstraints } from "@/lib/openapi";
 import { createJobHandler, getWideEvent } from "@/modules/jobs/shared";
 import { requireAuth } from "@/plugins/auth";
 
-export const parseRoutes = new Elysia({ prefix: "/api/parse" })
+export const parseRoutes = new Elysia({ prefix: "/v1/parse" })
   .use(requireAuth)
   .post(
     "/",

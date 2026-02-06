@@ -29,7 +29,7 @@ const formatKeyResponse = (key: {
 const getErrorMessage = (caught: unknown, fallback: string): string =>
   caught instanceof Error ? caught.message : fallback;
 
-export const keysRoutes = new Elysia({ prefix: "/api/keys" })
+export const keysRoutes = new Elysia({ prefix: "/v1/keys" })
   .use(requireAuth)
   .post(
     "/",

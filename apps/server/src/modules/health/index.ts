@@ -46,7 +46,7 @@ const determineOverallStatus = (
   return allHealthy ? "healthy" : "degraded";
 };
 
-export const healthRoutes = new Elysia({ prefix: "/health" })
+export const healthRoutes = new Elysia({ prefix: "/v1/health" })
   .get("/live", () => ({ status: "ok" }), {
     detail: {
       description: `Liveness probe for container orchestration.

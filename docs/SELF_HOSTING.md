@@ -98,7 +98,7 @@ S3_SECRET_KEY=minioadmin
 # OCR Service
 PADDLE_OCR_URL=https://your-paddleocr-instance.com
 
-# Optional - LLM for data extraction (required for /api/extract)
+# Optional - LLM for data extraction (required for /v1/extract)
 OPENROUTER_API_KEY=your-openrouter-api-key
 
 # Optional - GitHub OAuth
@@ -112,32 +112,32 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 
 | Method   | Endpoint                 | Description                |
 | -------- | ------------------------ | -------------------------- |
-| `GET`    | `/health/live`           | Liveness check             |
-| `GET`    | `/health/ready`          | Readiness check            |
-| `POST`   | `/api/parse`             | Parse document to markdown |
-| `POST`   | `/api/extract`           | Extract structured data    |
-| `GET`    | `/api/jobs`              | List jobs                  |
-| `GET`    | `/api/jobs/:id`          | Get job                    |
-| `DELETE` | `/api/jobs/:id`          | Delete job                 |
-| `GET`    | `/api/jobs/:id/download` | Download result            |
-| `POST`   | `/api/schemas`           | Create schema              |
-| `GET`    | `/api/schemas`           | List schemas               |
-| `GET`    | `/api/schemas/:id`       | Get schema                 |
-| `PATCH`  | `/api/schemas/:id`       | Update schema              |
-| `DELETE` | `/api/schemas/:id`       | Delete schema              |
-| `POST`   | `/api/schemas/generate`  | AI-generate schema         |
+| `GET`    | `/v1/health/live`           | Liveness check             |
+| `GET`    | `/v1/health/ready`          | Readiness check            |
+| `POST`   | `/v1/parse`                 | Parse document to markdown |
+| `POST`   | `/v1/extract`               | Extract structured data    |
+| `GET`    | `/v1/jobs`                  | List jobs                  |
+| `GET`    | `/v1/jobs/:id`              | Get job                    |
+| `DELETE` | `/v1/jobs/:id`              | Delete job                 |
+| `GET`    | `/v1/jobs/:id/download`     | Download result            |
+| `POST`   | `/v1/schemas`               | Create schema              |
+| `GET`    | `/v1/schemas`               | List schemas               |
+| `GET`    | `/v1/schemas/:id`           | Get schema                 |
+| `PATCH`  | `/v1/schemas/:id`           | Update schema              |
+| `DELETE` | `/v1/schemas/:id`           | Delete schema              |
+| `POST`   | `/v1/schemas/generate`      | AI-generate schema         |
 
 ### WebSocket
 
 ```
-WS /ws/jobs/:jobId
+WS /v1/realtime?job_id=:jobId
 ```
 
 Real-time job status updates. See SDK for type-safe usage.
 
 ### OpenAPI
 
-Interactive documentation at: `http://localhost:3000/openapi`
+Interactive documentation (pre-rendered) at: `http://localhost:3000/openapi`
 
 ## Project Structure
 

@@ -20,6 +20,7 @@ const buildSocialProviders = () => {
 };
 
 export const auth = betterAuth({
+  basePath: "/v1/auth",
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,

@@ -39,7 +39,7 @@ const formatSchemaResponse = (schema: {
 const getErrorMessage = (caught: unknown, fallback: string): string =>
   caught instanceof Error ? caught.message : fallback;
 
-export const schemasRoutes = new Elysia({ prefix: "/api/schemas" })
+export const schemasRoutes = new Elysia({ prefix: "/v1/schemas" })
   .use(requireAuth)
   .post(
     "/",
@@ -333,9 +333,9 @@ This action cannot be undone. Existing jobs that used this schema are not affect
 Provide a completed parse job ID to analyze its content and generate a schema that captures the document's structure. Optionally include hints to guide the generation.
 
 **Example workflow:**
-1. Parse a document with POST /api/parse
-2. Generate a schema from the result with POST /api/schemas/generate
-3. Use the schema with POST /api/extract for similar documents`,
+1. Parse a document with POST /v1/parse
+2. Generate a schema from the result with POST /v1/schemas/generate
+3. Use the schema with POST /v1/extract for similar documents`,
         responses: {
           200: { description: "Generated schema suggestion" },
           400: {

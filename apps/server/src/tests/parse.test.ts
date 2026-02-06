@@ -27,7 +27,7 @@ const headers = { Authorization: `Bearer ${API_KEY}` };
 const waitForJob = (jobId: string, timeoutMs = 30_000): Promise<JobMessage> => {
   const { promise, resolve, reject } = Promise.withResolvers<JobMessage>();
 
-  const ws = new WebSocket(`${WS_URL}/ws/jobs/${jobId}`, {
+  const ws = new WebSocket(`${WS_URL}/v1/realtime?job_id=${jobId}`, {
     headers: { Authorization: `Bearer ${API_KEY}` },
   });
 
@@ -66,7 +66,7 @@ describe("parse", () => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch(`${BASE_URL}/api/parse`, {
+    const res = await fetch(`${BASE_URL}/v1/parse`, {
       body: formData,
       headers,
       method: "POST",

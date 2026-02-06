@@ -18,7 +18,7 @@ interface WebSocketData {
   callback: (message: JobUpdateMessage) => void;
 }
 
-export const jobsWebSocket = new Elysia().ws("/ws/jobs/:jobId", {
+export const jobsWebSocket = new Elysia().ws("/v1/realtime", {
   close(ws) {
     const { wsData } = ws.data as unknown as { wsData?: WebSocketData };
 
@@ -41,7 +41,22 @@ export const jobsWebSocket = new Elysia().ws("/ws/jobs/:jobId", {
   },
 
   async open(ws) {
-    const { jobId } = ws.data.params;
+    const queryJobId = (
+      ws.data as unknown as { query?: Record<string, unknown> }
+    ).query?.job_id;
+    const jobId = Array.isArray(queryJobId) ? queryJobId[0] : queryJobId;
+
+    if (!jobId || typeof jobId !== "string") {
+      ws.send(
+        JSON.stringify({
+          data: { error: "Missing job_id query parameter" },
+          jobId: "unknown",
+          type: "error",
+        })
+      );
+      ws.close();
+      return;
+    }
 
     let userId: string;
     let organizationId: string;
@@ -63,7 +78,13 @@ export const jobsWebSocket = new Elysia().ws("/ws/jobs/:jobId", {
 
       const session = await auth.api.getSession({ headers });
       if (!session?.user || !session.session.activeOrganizationId) {
-        ws.send(JSON.stringify({ error: "Unauthorized", type: "error" }));
+        ws.send(
+          JSON.stringify({
+            data: { error: "Unauthorized" },
+            jobId,
+            type: "error",
+          })
+        );
         ws.close();
         return;
       }
@@ -77,7 +98,13 @@ export const jobsWebSocket = new Elysia().ws("/ws/jobs/:jobId", {
     });
 
     if (!job) {
-      ws.send(JSON.stringify({ error: "Job not found", type: "error" }));
+      ws.send(
+        JSON.stringify({
+          data: { error: "Job not found" },
+          jobId,
+          type: "error",
+        })
+      );
       ws.close();
       return;
     }

@@ -16,12 +16,12 @@ PDF ->.MD/.JSON API for PaddleOCR-VL with structured data extraction. Self-hosta
 
 - **Backend**: Elysia + Bun + PostgreSQL + BullMQ + Redis + MinIO
 - **Auth**: Better Auth (GitHub + email, organizations)
-- **OCR**: `@ocrbase/paddleocr-vl-ts` – type-safe SDK for Elysia backend
+- **OCR**: `paddleocr-vl` – official TypeScript client for PaddleOCR-VL (self-hosted)
 - **LLM**: Vercel AI SDK → OpenRouter / local vLLM
 
 ## Monorepo
 
 ```
 apps/server
-packages/db, packages/env, packages/auth, packages/paddleocr-vl-ts
+packages/auth, packages/config, packages/db, packages/env
 ```

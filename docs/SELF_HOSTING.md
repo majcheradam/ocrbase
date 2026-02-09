@@ -107,6 +107,9 @@ S3_SECRET_KEY=minioadmin
 
 # OCR Service
 PADDLE_OCR_URL=https://your-paddleocr-instance.com
+# The `paddleocr-vl` TypeScript client requires an API key value. For self-hosted
+# instances that don't enforce auth, any non-empty string works.
+PADDLEOCR_VL_API_KEY=local
 PADDLE_OCR_TIMEOUT_MS=900000
 WORKER_CONCURRENCY=1
 
@@ -164,11 +167,10 @@ ocrbase/
 │       │   ├── services/    # Core services (OCR, LLM, storage)
 │       │   └── workers/     # Background job processors
 ├── packages/
-│   ├── sdk/                 # TypeScript SDK (@ocrbase/sdk)
 │   ├── auth/                # Authentication (Better-Auth)
+│   ├── config/              # Shared config (tsconfig/eslint)
 │   ├── db/                  # Database schema (Drizzle)
-│   ├── env/                 # Environment validation
-│   └── paddleocr-vl-ts/     # PaddleOCR client
+│   └── env/                 # Environment validation
 └── docker-compose.yml
 ```
 

@@ -10,7 +10,6 @@ COPY packages/auth/package.json ./packages/auth/
 COPY packages/db/package.json ./packages/db/
 COPY packages/env/package.json ./packages/env/
 COPY packages/config/package.json ./packages/config/
-COPY packages/paddleocr-vl-ts/package.json ./packages/paddleocr-vl-ts/
 
 # Install dependencies
 RUN bun install --ignore-scripts

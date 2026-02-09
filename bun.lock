@@ -32,7 +32,6 @@
         "@ocrbase/auth": "workspace:*",
         "@ocrbase/db": "workspace:*",
         "@ocrbase/env": "workspace:*",
-        "@ocrbase/paddleocr-vl-ts": "workspace:*",
         "@sinclair/typebox": "^0.34.48",
         "ai": "^6.0.69",
         "better-auth": "catalog:",
@@ -42,6 +41,7 @@
         "elysia": "catalog:",
         "ioredis": "^5.9.2",
         "nanoid": "catalog:",
+        "paddleocr-vl": "^0.1.0",
         "pino": "^10.3.0",
         "posthog-node": "^5.24.9",
         "zod": "catalog:",
@@ -102,16 +102,6 @@
       "devDependencies": {
         "@ocrbase/config": "workspace:*",
         "@types/bun": "catalog:",
-        "typescript": "catalog:",
-      },
-    },
-    "packages/paddleocr-vl-ts": {
-      "name": "@ocrbase/paddleocr-vl-ts",
-      "dependencies": {
-        "zod": "catalog:",
-      },
-      "devDependencies": {
-        "@ocrbase/config": "workspace:*",
         "typescript": "catalog:",
       },
     },
@@ -382,8 +372,6 @@
     "@ocrbase/db": ["@ocrbase/db@workspace:packages/db"],
 
     "@ocrbase/env": ["@ocrbase/env@workspace:packages/env"],
-
-    "@ocrbase/paddleocr-vl-ts": ["@ocrbase/paddleocr-vl-ts@workspace:packages/paddleocr-vl-ts"],
 
     "@oozcitak/dom": ["@oozcitak/dom@2.0.2", "", { "dependencies": { "@oozcitak/infra": "^2.0.2", "@oozcitak/url": "^3.0.0", "@oozcitak/util": "^10.0.0" } }, "sha512-GjpKhkSYC3Mj4+lfwEyI1dqnsKTgwGy48ytZEhm4A/xnH/8z9M3ZVXKr/YGQi3uCLs1AEBS+x5T2JPiueEDW8w=="],
 
@@ -974,6 +962,8 @@
     "oxfmt": ["oxfmt@0.28.0", "", { "dependencies": { "tinypool": "2.1.0" }, "optionalDependencies": { "@oxfmt/darwin-arm64": "0.28.0", "@oxfmt/darwin-x64": "0.28.0", "@oxfmt/linux-arm64-gnu": "0.28.0", "@oxfmt/linux-arm64-musl": "0.28.0", "@oxfmt/linux-x64-gnu": "0.28.0", "@oxfmt/linux-x64-musl": "0.28.0", "@oxfmt/win32-arm64": "0.28.0", "@oxfmt/win32-x64": "0.28.0" }, "bin": { "oxfmt": "bin/oxfmt" } }, "sha512-3+hhBqPE6Kp22KfJmnstrZbl+KdOVSEu1V0ABaFIg1rYLtrMgrupx9znnHgHLqKxAVHebjTdiCJDk30CXOt6cw=="],
 
     "oxlint": ["oxlint@1.43.0", "", { "optionalDependencies": { "@oxlint/darwin-arm64": "1.43.0", "@oxlint/darwin-x64": "1.43.0", "@oxlint/linux-arm64-gnu": "1.43.0", "@oxlint/linux-arm64-musl": "1.43.0", "@oxlint/linux-x64-gnu": "1.43.0", "@oxlint/linux-x64-musl": "1.43.0", "@oxlint/win32-arm64": "1.43.0", "@oxlint/win32-x64": "1.43.0" }, "peerDependencies": { "oxlint-tsgolint": ">=0.11.2" }, "optionalPeers": ["oxlint-tsgolint"], "bin": { "oxlint": "bin/oxlint" } }, "sha512-xiqTCsKZch+R61DPCjyqUVP2MhkQlRRYxLRBeBDi+dtQJ90MOgdcjIktvDCgXz0bgtx94EQzHEndsizZjMX2OA=="],
+
+    "paddleocr-vl": ["paddleocr-vl@0.1.0", "", {}, "sha512-ZfSQ6s7rDrHgOoEETzi3hjdPKpB95TM6iEmz3wxG4P3CHIPEDBX6IucKG7kSxe4zbjfrs2AeQy87+e3uxbVzRg=="],
 
     "parse5": ["parse5@7.3.0", "", { "dependencies": { "entities": "^6.0.0" } }, "sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw=="],
 

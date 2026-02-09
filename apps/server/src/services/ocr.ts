@@ -1,13 +1,15 @@
 import { env } from "@ocrbase/env/server";
-import { PaddleOCRClient } from "@ocrbase/paddleocr-vl-ts";
+import PaddleocrVlClient from "paddleocr-vl";
 
 export interface ParseResult {
   markdown: string;
   pageCount: number;
 }
 
-const ocrClient = new PaddleOCRClient({
-  layoutUrl: env.PADDLE_OCR_URL,
+const ocrClient = new PaddleocrVlClient({
+  apiKey: env.PADDLEOCR_VL_API_KEY,
+  baseURL: env.PADDLE_OCR_URL,
+  maxRetries: 0,
   timeout: env.PADDLE_OCR_TIMEOUT_MS,
 });
 
@@ -25,13 +27,37 @@ export const parseDocument = async (
   const base64 = buffer.toString("base64");
   const fileType = getFileType(mimeType);
 
-  const result = await ocrClient.parseDocument(base64, { fileType });
-  const markdown = PaddleOCRClient.combineMarkdown(result);
-  const pageCount = PaddleOCRClient.getPageCount(result);
+  const response = await ocrClient.layoutParsing.infer({
+    file: base64,
+    fileType,
+    // Preserve previous in-house defaults (excluding maxNewTokens, which should
+    // remain server-side configurable).
+    prettifyMarkdown: true,
+    useLayoutDetection: true,
+  });
+
+  const markdown = response.result.layoutParsingResults
+    .map((r) => r.markdown.text)
+    .join("\n\n---\n\n");
+  const pageCount =
+    typeof response.result.dataInfo === "object" &&
+    response.result.dataInfo !== null &&
+    "numPages" in response.result.dataInfo &&
+    typeof (response.result.dataInfo as { numPages: unknown }).numPages ===
+      "number"
+      ? (response.result.dataInfo as { numPages: number }).numPages
+      : 1;
 
   return { markdown, pageCount };
 };
 
-export const checkOcrHealth = (): Promise<boolean> => ocrClient.checkHealth();
+export const checkOcrHealth = async (): Promise<boolean> => {
+  try {
+    const response = await ocrClient.health.check();
+    return response.errorCode === 0;
+  } catch {
+    return false;
+  }
+};
 
 export { ocrClient };

@@ -22,6 +22,10 @@ export const env = createEnv({
       .enum(["development", "production", "test"])
       .default("development"),
     OPENROUTER_API_KEY: z.string().optional(),
+    // The upstream `paddleocr-vl` client requires an API key value to be set.
+    // For self-hosted PaddleOCR-VL instances that don't enforce auth, any
+    // non-empty string is fine.
+    PADDLEOCR_VL_API_KEY: z.string().default("local"),
     // OCR calls can take minutes for large PDFs (e.g. 100+ pages).
     // Tune this per deployment/workload.
     PADDLE_OCR_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),

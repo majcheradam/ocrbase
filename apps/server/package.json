@@ -24,7 +24,6 @@
     "@ocrbase/auth": "workspace:*",
     "@ocrbase/db": "workspace:*",
     "@ocrbase/env": "workspace:*",
-    "@ocrbase/paddleocr-vl-ts": "workspace:*",
     "@sinclair/typebox": "^0.34.48",
     "ai": "^6.0.69",
     "better-auth": "catalog:",
@@ -34,6 +33,7 @@
     "elysia": "catalog:",
     "ioredis": "^5.9.2",
     "nanoid": "catalog:",
+    "paddleocr-vl": "^0.1.0",
     "pino": "^10.3.0",
     "posthog-node": "^5.24.9",
     "zod": "catalog:"

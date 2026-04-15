@@ -3,6 +3,7 @@ import { env } from "./env";
 import { openapi } from "./lib/openapi";
 import { telemetry } from "./lib/telemetry";
 import { healthModule } from "./modules/health";
+import { parseModule } from "./modules/parse";
 
 const app = new Elysia()
   .use(telemetry)
@@ -14,7 +15,7 @@ const app = new Elysia()
     }),
     { detail: { hide: true } },
   )
-  .group("/v1", (router) => router.use(healthModule))
+  .group("/v1", (router) => router.use(healthModule).use(parseModule))
   .listen(env.PORT);
 
 console.log(

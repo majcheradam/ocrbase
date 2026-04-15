@@ -1,5 +1,22 @@
 import { Elysia } from "elysia";
+import { env } from "./env";
+import { openapi } from "./lib/openapi";
+import { telemetry } from "./lib/telemetry";
+import { healthModule } from "./modules/health";
 
-const app = new Elysia().get("/", () => "Hello Elysia").listen(3000);
+const app = new Elysia()
+  .use(telemetry)
+  .use(openapi)
+  .get(
+    "/",
+    (): { message: string } => ({
+      message: `Welcome to the OCRBase API! Documentation is available at http://${app.server?.hostname}:${app.server?.port}/v1/openapi`,
+    }),
+    { detail: { hide: true } },
+  )
+  .group("/v1", (router) => router.use(healthModule))
+  .listen(env.PORT);
 
-console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
+console.log(
+  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}/v1/health\n📖 OpenAPI docs at http://${app.server?.hostname}:${app.server?.port}/v1/openapi`,
+);

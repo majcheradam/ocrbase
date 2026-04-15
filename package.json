@@ -11,6 +11,12 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
+    "@elysiajs/openapi": "^1.4.14",
+    "@elysiajs/opentelemetry": "^1.4.11",
+    "@opentelemetry/exporter-trace-otlp-proto": "^0.214.0",
+    "@opentelemetry/sdk-trace-base": "^2.6.1",
+    "@t3-oss/env-core": "^0.13.11",
+    "dotenv": "^17.4.2",
     "elysia": "^1.4.28"
   },
   "devDependencies": {

@@ -1,15 +1,21 @@
 {
   "name": "ocrbase",
-  "version": "1.0.50",
+  "version": "0.0.0",
+  "type": "module",
+  "module": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "check": "ultracite check",
+    "fix": "ultracite fix"
   },
   "dependencies": {
     "elysia": "latest"
   },
   "devDependencies": {
-    "bun-types": "latest"
-  },
-  "module": "src/index.js"
+    "bun-types": "latest",
+    "oxfmt": "^0.45.0",
+    "oxlint": "^1.60.0",
+    "ultracite": "7.5.9"
+  }
 }

@@ -26,7 +26,7 @@ ocrbase does not ship the models — point it at a running inference server:
 docker run -d -p 3000:3000 \
   -e GLM_OCR_URL=http://localhost:5002 \
   -e PADDLEOCR_URL=http://localhost:8190 \
-  --name ocrbase ghcr.io/ocrbase/ocrbase
+  --name ocrbase ghcr.io/ocrbase-hq/ocrbase
 ```
 
 ## Develop

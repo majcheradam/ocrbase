@@ -54,3 +54,14 @@ docker run -d -p 3000:3000 \
 bun install
 bun dev
 ```
+
+## ☁️ Optional S3 Input Staging
+
+If `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`, and `S3_ENDPOINT` are set, `/v1/parse` will:
+
+- upload incoming `File` inputs to S3
+- fetch remote document URLs and upload the contents to S3
+- upload base64 or data URL payloads to S3
+- pass a presigned `GET` URL into the selected document model
+
+If those env vars are not set, `ocrbase` keeps the current direct behavior and sends the original input to the model.

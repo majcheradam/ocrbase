@@ -1,5 +1,6 @@
 import { Elysia, t } from "elysia";
 
+import { resolveDocumentInput } from "../lib/file";
 import { getModel } from "../lib/models";
 import type { ParseResult, ModelId } from "../lib/models";
 
@@ -8,14 +9,9 @@ export interface ParseDocumentInput {
   file: File | URL | string;
 }
 
-async function toDataUrl(file: File): Promise<string> {
-  const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
-  return `data:${file.type};base64,${base64}`;
-}
-
 export async function parseDocument({ model, file }: ParseDocumentInput): Promise<ParseResult> {
   const documentModel = getModel(model);
-  const resolved = file instanceof File ? await toDataUrl(file) : file;
+  const resolved = await resolveDocumentInput(file);
 
   return await documentModel.parse(resolved);
 }

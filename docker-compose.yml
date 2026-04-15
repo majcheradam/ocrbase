@@ -1,4 +1,37 @@
 services:
+  minio:
+    image: minio/minio:latest
+    container_name: ocrbase-minio
+    command: server /data --console-address ":9001"
+    env_file:
+      - .env
+    environment:
+      MINIO_ROOT_USER: ${S3_ACCESS_KEY_ID:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET_ACCESS_KEY:-minioadmin}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $${S3_ACCESS_KEY_ID:-minioadmin} $${S3_SECRET_ACCESS_KEY:-minioadmin};
+      mc mb local/$${S3_BUCKET:-ocrbase} --ignore-existing;
+      mc anonymous set none local/$${S3_BUCKET:-ocrbase};
+      exit 0;
+      "
   ocrbase:
     image: ocrbase:latest
     ports:

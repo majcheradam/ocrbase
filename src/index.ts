@@ -19,5 +19,5 @@ const app = new Elysia()
   .listen(env.PORT);
 
 console.log(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}/v1/health\n📖 OpenAPI docs at http://${app.server?.hostname}:${app.server?.port}/v1/openapi`,
+  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}/v1/health\n📖 OpenAPI docs at http://${app.server?.hostname}:${app.server?.port}/v1/openapi${env.S3_ENDPOINT ? `\n🪣  S3 storage at ${env.S3_ENDPOINT}` : ""}`,
 );

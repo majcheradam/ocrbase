@@ -19,6 +19,10 @@ RUN bun build \
 
 FROM gcr.io/distroless/base
 
+LABEL org.opencontainers.image.source="https://github.com/ocrbase-hq/ocrbase"
+LABEL org.opencontainers.image.description="Lightweight, model-agnostic OCR API"
+LABEL org.opencontainers.image.licenses="MIT"
+
 WORKDIR /app
 
 COPY --from=build /app/server server

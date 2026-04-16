@@ -1,6 +1,6 @@
 {
   "name": "ocrbase",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "module": "src/index.js",
   "scripts": {
@@ -11,13 +11,17 @@
     "typecheck": "tsgo --noEmit"
   },
   "dependencies": {
+    "@bull-board/api": "^7.0.0",
+    "@bull-board/elysia": "^7.0.0",
     "@elysiajs/openapi": "^1.4.14",
     "@elysiajs/opentelemetry": "^1.4.11",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.214.0",
     "@opentelemetry/sdk-trace-base": "^2.6.1",
     "@t3-oss/env-core": "^0.13.11",
+    "bullmq": "^5.74.1",
     "dotenv": "^17.4.2",
-    "elysia": "^1.4.28"
+    "elysia": "^1.4.28",
+    "ioredis": "^5.10.1"
   },
   "devDependencies": {
     "@typescript/native-preview": "^7.0.0-dev.20260415.1",

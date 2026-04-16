@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: redis:latest
+    container_name: ocrbase-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
   minio:
     image: minio/minio:latest
     container_name: ocrbase-minio
@@ -33,9 +40,20 @@ services:
       exit 0;
       "
   ocrbase:
-    image: ocrbase:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ocrbase:local
     ports:
       - "3000:3000"
     env_file:
       - .env
+    environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      - redis
+      - minio
     restart: unless-stopped
+
+volumes:
+  minio_data:

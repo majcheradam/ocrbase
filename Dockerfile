@@ -26,6 +26,7 @@ LABEL org.opencontainers.image.licenses="MIT"
 WORKDIR /app
 
 COPY --from=build /app/server server
+COPY --from=build /app/node_modules/@bull-board/ui/dist ./node_modules/@bull-board/ui/dist
 
 ENV NODE_ENV=production
 

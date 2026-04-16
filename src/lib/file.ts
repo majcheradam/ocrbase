@@ -191,17 +191,15 @@ async function toS3Payload(
 }
 
 export async function resolveDocumentInput(file: DocumentInput): Promise<string | URL> {
-  if (!isS3Configured || !s3) {
+  if (!isS3Configured) {
     return file instanceof File ? await toDataUrl(file) : file;
   }
-
-  const s3Client = s3;
   const payload = await toS3Payload(file);
   const key = getObjectKey(payload.type, payload.filename);
 
-  await s3Client.write(key, payload.body, payload.type ? { type: payload.type } : undefined);
+  await s3.write(key, payload.body, payload.type ? { type: payload.type } : undefined);
 
-  return s3Client.presign(key, {
+  return s3.presign(key, {
     method: "GET",
     type: payload.type,
   });

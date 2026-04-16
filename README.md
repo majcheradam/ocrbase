@@ -23,6 +23,8 @@
 ## 🧩 Core
 
 - `/v1/parse` — turn a document into text
+- `/v1/parse/async` — enqueue a parse job
+- `/v1/job/:jobId` — inspect parse job status
 
 ## 🧠 Models
 
@@ -65,3 +67,15 @@ If `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_BUCKET`, and `S3_ENDPOINT` ar
 - pass a presigned `GET` URL into the selected document model
 
 If those env vars are not set, `ocrbase` keeps the current direct behavior and sends the original input to the model.
+
+## 📬 Optional BullMQ Parse Queue
+
+If `REDIS_URL` and the S3 env vars above are set, queue mode is enabled:
+
+- `POST /v1/parse` uploads or normalizes the input to S3, enqueues a parse job, waits for completion, and returns the normal parse response
+- `POST /v1/parse/async` returns `202 { jobId }`
+- `GET /v1/job/:jobId` returns the job state plus `result` or `error`
+
+If Redis is missing, or Redis is present but S3 is not fully configured, `POST /v1/parse` keeps the existing direct behavior and the async/status endpoints return `503`.
+
+When queue mode is enabled, Bull Board is also available at `/v1/admin/queues`.

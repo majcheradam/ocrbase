@@ -3,7 +3,7 @@ import { env } from "./env";
 import { openapi } from "./lib/openapi";
 import { telemetry } from "./lib/telemetry";
 import { healthModule } from "./modules/health";
-import { parseModule } from "./modules/parse";
+import { parseModule, asyncParseModule } from "./modules/parse";
 
 const app = new Elysia()
   .use(telemetry)
@@ -15,9 +15,23 @@ const app = new Elysia()
     }),
     { detail: { hide: true } },
   )
-  .group("/v1", (router) => router.use(healthModule).use(parseModule))
-  .listen(env.PORT);
+  .group("/v1", (router) => {
+    router.use(healthModule).use(parseModule);
+    if (asyncParseModule) {
+      router.use(asyncParseModule);
+    }
+    return router;
+  });
+
+if (env.REDIS_URL) {
+  const { jobModule } = await import("./modules/job");
+  const { serverAdapter } = await import("./lib/bullboard");
+  app.group("/v1", (router) => router.use(jobModule));
+  app.use(await serverAdapter.registerPlugin());
+}
+
+app.listen(env.PORT);
 
 console.log(
-  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}/v1/health\n📖 OpenAPI docs at http://${app.server?.hostname}:${app.server?.port}/v1/openapi${env.S3_ENDPOINT ? `\n🪣  S3 storage at ${env.S3_ENDPOINT}` : ""}`,
+  `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}/v1/health\n📖 OpenAPI docs at http://${app.server?.hostname}:${app.server?.port}/v1/openapi${env.S3_ENDPOINT ? `\n🪣  S3 storage at ${env.S3_ENDPOINT}` : ""}${env.REDIS_URL ? `\n🎯 Bull Board at http://${app.server?.hostname}:${app.server?.port}/v1/queues` : ""}`,
 );

@@ -24,7 +24,9 @@
 
 - `/v1/parse` — turn a document into text
 - `/v1/parse/async` — enqueue a parse job
-- `/v1/job/:jobId` — inspect parse job status
+- `/v1/extract` — extract structured JSON from a document
+- `/v1/extract/async` — enqueue an extract job
+- `/v1/job/:jobId` — inspect parse or extract job status
 
 ## 🧠 Models
 

@@ -30,10 +30,14 @@ export const parseModule = new Elysia().post(
   async function parse({ body }) {
     const file = await resolveDocumentInput(body.file);
     if (parseQueue && parseQueueEvents) {
-      const job = await parseQueue.add("parse", {
-        file,
-        model: body.model,
-      });
+      const job = await parseQueue.add(
+        "parse",
+        {
+          file,
+          model: body.model,
+        },
+        { jobId: crypto.randomUUID() },
+      );
       return await job.waitUntilFinished(parseQueueEvents);
     }
     return await parseDocument({
@@ -59,10 +63,14 @@ export const asyncParseModule = _parseQueue
       "/parse/async",
       async function parseAsync({ body }) {
         const file = await resolveDocumentInput(body.file);
-        const job = await _parseQueue.add("parse", {
-          file,
-          model: body.model,
-        });
+        const job = await _parseQueue.add(
+          "parse",
+          {
+            file,
+            model: body.model,
+          },
+          { jobId: crypto.randomUUID() },
+        );
         return { job_id: job.id };
       },
       {

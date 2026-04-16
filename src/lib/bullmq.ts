@@ -2,10 +2,21 @@ import IORedis from "ioredis";
 import { Queue, QueueEvents } from "bullmq";
 import { env } from "../env";
 
-export const redis = env.REDIS_URL
-  ? new IORedis(env.REDIS_URL, { maxRetriesPerRequest: null })
-  : null;
+function createBullMqResources() {
+  if (!env.REDIS_URL) {
+    return {};
+  }
 
-export const parseQueue = redis ? new Queue("parse", { connection: redis }) : null;
+  const redis = new IORedis(env.REDIS_URL, { maxRetriesPerRequest: null });
 
-export const parseQueueEvents = redis ? new QueueEvents("parse", { connection: redis }) : null;
+  return {
+    extractQueue: new Queue("extract", { connection: redis }),
+    extractQueueEvents: new QueueEvents("extract", { connection: redis }),
+    parseQueue: new Queue("parse", { connection: redis }),
+    parseQueueEvents: new QueueEvents("parse", { connection: redis }),
+    redis,
+  };
+}
+
+export const { extractQueue, extractQueueEvents, parseQueue, parseQueueEvents, redis } =
+  createBullMqResources();

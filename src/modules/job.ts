@@ -1,5 +1,5 @@
 import { Elysia, t } from "elysia";
-import { parseQueue } from "../lib/bullmq";
+import { parseQueue, extractQueue } from "../lib/bullmq";
 
 export const jobModule = new Elysia().get(
   "/job/:job_id",
@@ -8,7 +8,10 @@ export const jobModule = new Elysia().get(
       set.status = 503;
       return { error: "Queue not available" };
     }
-    const job = await parseQueue.getJob(params.job_id);
+    const job =
+      (await parseQueue.getJob(params.job_id)) ??
+      (await extractQueue?.getJob(params.job_id)) ??
+      null;
     if (!job) {
       set.status = 404;
       return { error: "Job not found" };

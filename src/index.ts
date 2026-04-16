@@ -4,6 +4,7 @@ import { openapi } from "./lib/openapi";
 import { telemetry } from "./lib/telemetry";
 import { healthModule } from "./modules/health";
 import { parseModule, asyncParseModule } from "./modules/parse";
+import { extractModule, asyncExtractModule } from "./modules/extract";
 
 const app = new Elysia()
   .use(telemetry)
@@ -16,9 +17,12 @@ const app = new Elysia()
     { detail: { hide: true } },
   )
   .group("/v1", (router) => {
-    router.use(healthModule).use(parseModule);
+    router.use(healthModule).use(parseModule).use(extractModule);
     if (asyncParseModule) {
       router.use(asyncParseModule);
+    }
+    if (asyncExtractModule) {
+      router.use(asyncExtractModule);
     }
     return router;
   });

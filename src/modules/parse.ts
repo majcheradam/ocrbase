@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { Worker } from "bullmq";
 import type { Job } from "bullmq";
 
+import { env } from "../env";
 import { resolveDocumentInput } from "../lib/file";
 import { getModel } from "../lib/models";
 import type { ParseResult, ModelId } from "../lib/models";
@@ -21,7 +22,7 @@ export const parseWorker = redis
   ? new Worker<ParseDocumentInput, ParseResult>(
       "parse",
       async (job: Job<ParseDocumentInput>) => await parseDocument(job.data),
-      { connection: redis },
+      { concurrency: env.BULLMQ_CONCURRENCY, connection: redis },
     )
   : null;
 

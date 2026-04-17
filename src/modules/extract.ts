@@ -87,7 +87,7 @@ export const extractWorker = redis
   ? new Worker<ExtractDocumentInput, ExtractResult>(
       "extract",
       async (job: Job<ExtractDocumentInput>) => await extractDocument(job.data),
-      { connection: redis },
+      { concurrency: env.BULLMQ_CONCURRENCY, connection: redis },
     )
   : null;
 

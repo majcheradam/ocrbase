@@ -6,6 +6,7 @@ export const env = createEnv({
   emptyStringAsUndefined: true,
   runtimeEnv: process.env,
   server: {
+    BULLMQ_CONCURRENCY: z.coerce.number().int().positive().default(16),
     GLM_OCR_URL: z.url().optional(),
     OPENROUTER_API_KEY: z.string().optional(),
     OPENROUTER_MODEL: z.string().default("google/gemini-2.5-flash"),
